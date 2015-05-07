@@ -46,6 +46,8 @@ int module3MenuArrSize;
 
 
 void setup() {
+  //Debug
+  Serial.begin(9600);
   
   // initialize the lcd 
   lcd.init();
@@ -156,6 +158,10 @@ void menuModules(boolean key1, boolean key2){
 }
 
 void loop() {
+ 
+  int module1ForTestOn = 0;
+  int module2ForTestOn = 0;
+  int module3ForTestOn = 0; 
   
   while(!startKeyActive){
       
@@ -177,7 +183,6 @@ void loop() {
       if (selectedModule()){
       
         startKeyActive = 1;
-        startShowCounter = 1;
       
         //Switch on testLed
         digitalWrite(testLed,1);
@@ -370,26 +375,8 @@ void loop() {
     
   }
   
-  //Start testing actions, show tested modules
-  while(startShowCounter != 0 && startShowCounter < 4){
-    
-    int module1ForTestOn = 0;
-    int module2ForTestOn = 0;
-    int module3ForTestOn = 0;
-    
-    if (startShowCounter == 1){
+  if (startKeyActive && !startShowCounter ){
       
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("****************");
-      lcd.setCursor(0,1);
-      lcd.print("Test started");
-      
-      delay(2000);
-      lcd.clear();
-      
-    }
-          
     //Module 1 status
     for (int i = 0; i < module1MenuArrSize; i ++){
     
@@ -402,7 +389,113 @@ void loop() {
       
     }
     delay(10);
+
+    //Module 2 status
+    for (int i = 0; i < module2MenuArrSize; i ++){
     
+      if (module2TubesSw[i] == 1){
+      
+        module2ForTestOn = 1;
+        break;
+      
+      }
+    
+    }
+    delay(10);
+
+    //Module 3 status
+    for (int i = 0; i < module3MenuArrSize; i ++){
+    
+      if (module3TubesSw[i] == 1){
+      
+        module3ForTestOn = 1;
+        break;
+      
+      }
+      
+    }
+    delay(10);
+
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("****************");
+    lcd.setCursor(0,1);
+    lcd.print("Test started");
+    
+    delay(2000);
+    lcd.clear();
+
+    //Create Module 1 data package  
+    if (module1ForTestOn){
+      
+      //Module 1 list
+      for (int i = 0; i < module1MenuArrSize; i ++){
+      
+        if (module1TubesSw[i] == 1){
+          
+          Serial.print("ID = ");
+          Serial.print("1, ");          
+          Serial.print("SWNR = ");
+          Serial.print(i);
+          Serial.print(", ");
+          Serial.println("STATUS = 1");
+        
+        }
+      
+      }
+      
+    }
+
+    //Create Module 2 data package  
+    if (module2ForTestOn){
+      
+      //Module 2 list
+      for (int i = 0; i < module2MenuArrSize; i ++){
+      
+        if (module2TubesSw[i] == 1){
+          
+          Serial.print("ID = ");
+          Serial.print("2, ");
+          Serial.print("SWNR = ");
+          Serial.print(i);
+          Serial.print(", ");
+          Serial.println("STATUS = 1");
+        
+        }
+      
+      }
+      
+    }
+
+    //Create Module 3 data package  
+    if (module3ForTestOn){
+      
+      //Module 1 list
+      for (int i = 0; i < module3MenuArrSize; i ++){
+      
+        if (module3TubesSw[i] == 1){
+          
+          Serial.print("ID = ");
+          Serial.print("3, ");          
+          Serial.print("SWNR = ");
+          Serial.print(i);
+          Serial.print(", ");
+          Serial.println("STATUS = 1");
+        
+        }
+      
+      }
+      
+    }
+    
+    startShowCounter = 1;
+    
+  }
+  
+  //Show tested modules
+  while(startShowCounter != 0 && startShowCounter < 4){
+                  
+    //Displayed if Module 1 is on  
     if (module1ForTestOn){
         
       lcd.setCursor(0,0);
@@ -426,19 +519,7 @@ void loop() {
       
     }
 
-    //Module 2 status
-    for (int i = 0; i < module2MenuArrSize; i ++){
-    
-      if (module2TubesSw[i] == 1){
-      
-        module2ForTestOn = 1;
-        break;
-      
-      }
-    
-    }
-    delay(10);
-
+    //Displayed if Module 2 is on
     if (module2ForTestOn){
         
       lcd.setCursor(0,0);
@@ -462,19 +543,7 @@ void loop() {
       
     }
 
-    //Module 3 status
-    for (int i = 0; i < module3MenuArrSize; i ++){
-    
-      if (module3TubesSw[i] == 1){
-      
-        module3ForTestOn = 1;
-        break;
-      
-      }
-      
-    }
-    delay(10);
-
+    //Displayed if Module 3 is on
     if (module3ForTestOn){
         
       lcd.setCursor(0,0);
