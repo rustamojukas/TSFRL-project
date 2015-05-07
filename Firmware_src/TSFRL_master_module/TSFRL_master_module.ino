@@ -33,6 +33,9 @@ int modulesMenuPos = 0;
 int moduleMenuPos = 0;
 int selected = 0;
 int inModuleMenu = 0;
+int module1IsSelected = 0;
+int module2IsSelected = 0;
+int module3IsSelected = 0;
 int defaultDisplay = 0;
 int startKeyActive = 0;
 int startShowCounter = 0;
@@ -181,11 +184,12 @@ void loop() {
       
       }else{
       
+        //Error message: 1 module or more is not selected
         lcd.clear();
         lcd.setCursor(0,0);
         lcd.print("1 module or more");
         lcd.setCursor(0,1);
-        lcd.print("NOT selected");
+        lcd.print("is NOT selected");
         delay(2000);
         defaultDisplay = 1;
         
@@ -226,14 +230,38 @@ void loop() {
       
       if (debounce(keySelect) && inModuleMenu == 1){
       
-        if (module1TubesSw[moduleMenuPos] == 0) module1TubesSw[moduleMenuPos] = 1;
-        else if (module1TubesSw[moduleMenuPos] == 1) module1TubesSw[moduleMenuPos] = 0;
-  
+        if (module1TubesSw[moduleMenuPos] == 0){
+
+          if(module1IsSelected == 1){
+            
+            //Error message: Module 1 is selected!
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("Module 1 is");
+            lcd.setCursor(0,1);
+            lcd.print("selected!");
+            delay(2000);
+            defaultDisplay = 1;
+            
+          }else{
+            
+            module1TubesSw[moduleMenuPos] = 1;
+            module1IsSelected = 1;
+          
+        }
+
+        
+        }else if (module1TubesSw[moduleMenuPos] == 1){
+          
+          module1TubesSw[moduleMenuPos] = 0;
+          module1IsSelected = 0; 
+        
+        }
         
       }
-      
+        
       inModuleMenu = 1;
-  
+    
     }
     
     //Module 2 menu display
@@ -253,10 +281,34 @@ void loop() {
       
       if (debounce(keySelect) && inModuleMenu == 1){
       
-        if (module2TubesSw[moduleMenuPos] == 0) module2TubesSw[moduleMenuPos] = 1;
-        else if (module2TubesSw[moduleMenuPos] == 1) module2TubesSw[moduleMenuPos] = 0;
-  
+        if (module2TubesSw[moduleMenuPos] == 0){
+
+          if(module2IsSelected == 1){
+            
+            //Error message: Module 2 is selected!
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("Module 2 is");
+            lcd.setCursor(0,1);
+            lcd.print("selected!");
+            delay(2000);
+            defaultDisplay = 1;
+            
+          }else{
+            
+            module2TubesSw[moduleMenuPos] = 1;
+            module2IsSelected = 1;
+          
+        }
+
         
+        }else if (module2TubesSw[moduleMenuPos] == 1){
+          
+          module2TubesSw[moduleMenuPos] = 0;
+          module2IsSelected = 0; 
+        
+        }
+          
       }
       
       inModuleMenu = 1;
@@ -280,10 +332,34 @@ void loop() {
       
       if (debounce(keySelect) && inModuleMenu == 1){
       
-        if (module3TubesSw[moduleMenuPos] == 0) module3TubesSw[moduleMenuPos] = 1;
-        else if (module3TubesSw[moduleMenuPos] == 1) module3TubesSw[moduleMenuPos] = 0;
-  
+        if (module3TubesSw[moduleMenuPos] == 0){
+
+          if(module3IsSelected == 1){
+            
+            //Error message: Module 3 is selected!
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("Module 3 is");
+            lcd.setCursor(0,1);
+            lcd.print("selected!");
+            delay(2000);
+            defaultDisplay = 1;
+            
+          }else{
+            
+            module3TubesSw[moduleMenuPos] = 1;
+            module3IsSelected = 1;
+          
+        }
+
         
+        }else if (module3TubesSw[moduleMenuPos] == 1){
+          
+          module3TubesSw[moduleMenuPos] = 0;
+          module3IsSelected = 0; 
+        
+        }
+            
       }
       
       inModuleMenu = 1;
@@ -297,7 +373,9 @@ void loop() {
   //Start testing actions, show tested modules
   while(startShowCounter != 0 && startShowCounter < 4){
     
-    int modulesForTestOn[3];
+    int module1ForTestOn = 0;
+    int module2ForTestOn = 0;
+    int module3ForTestOn = 0;
     
     if (startShowCounter == 1){
       
@@ -311,39 +389,13 @@ void loop() {
       lcd.clear();
       
     }
-    
+          
     //Module 1 status
     for (int i = 0; i < module1MenuArrSize; i ++){
     
       if (module1TubesSw[i] == 1){
       
-        modulesForTestOn[0] = 1;
-        break;
-      
-      }
-      
-    }
-    delay(10);
-      
-    //Module 2 status
-    for (int i = 0; i < module2MenuArrSize; i ++){
-    
-      if (module2TubesSw[i] == 1){
-      
-        modulesForTestOn[1] = 1;
-        break;
-      
-      }
-    
-    }
-    delay(10);
-      
-    //Module 3 status
-    for (int i = 0; i < module3MenuArrSize; i ++){
-    
-      if (module3TubesSw[i] == 1){
-      
-        modulesForTestOn[2] = 1;
+        module1ForTestOn = 1;
         break;
       
       }
@@ -351,10 +403,10 @@ void loop() {
     }
     delay(10);
     
-    if (modulesForTestOn[0] == 1){
+    if (module1ForTestOn){
         
       lcd.setCursor(0,0);
-      lcd.print("Test Module 1");
+      lcd.print("Module 1 test");
       
       //Module 1 list
       for (int i = 0; i < module1MenuArrSize; i ++){
@@ -365,7 +417,7 @@ void loop() {
           lcd.print("                ");
           delay(750);
           lcd.setCursor(0,1);
-          module1TubesName[i];
+          lcd.print(module1TubesName[i]);
           delay(1250);
         
         }
@@ -374,10 +426,23 @@ void loop() {
       
     }
 
-    if (modulesForTestOn[1] == 1){
+    //Module 2 status
+    for (int i = 0; i < module2MenuArrSize; i ++){
+    
+      if (module2TubesSw[i] == 1){
+      
+        module2ForTestOn = 1;
+        break;
+      
+      }
+    
+    }
+    delay(10);
+
+    if (module2ForTestOn){
         
       lcd.setCursor(0,0);
-      lcd.print("Test Module 2");
+      lcd.print("Module 2 test");
       
       //Module 2 list
       for (int i = 0; i < module2MenuArrSize; i ++){
@@ -388,7 +453,7 @@ void loop() {
           lcd.print("                ");
           delay(750);
           lcd.setCursor(0,1);
-          module2TubesName[i];
+          lcd.print(module2TubesName[i]);
           delay(1250);
         
         }
@@ -397,11 +462,23 @@ void loop() {
       
     }
 
+    //Module 3 status
+    for (int i = 0; i < module3MenuArrSize; i ++){
+    
+      if (module3TubesSw[i] == 1){
+      
+        module3ForTestOn = 1;
+        break;
+      
+      }
+      
+    }
+    delay(10);
 
-    if (modulesForTestOn[2] == 1){
+    if (module3ForTestOn){
         
       lcd.setCursor(0,0);
-      lcd.print("Test Module 3");
+      lcd.print("Module 3 test");
       
       //Module 3 list
       for (int i = 0; i < module3MenuArrSize; i ++){
@@ -412,7 +489,7 @@ void loop() {
           lcd.print("                ");
           delay(750);
           lcd.setCursor(0,1);
-          module3TubesName[i];
+          lcd.print(module3TubesName[i]);
           delay(1250);
         
         }
