@@ -3,13 +3,18 @@
 
 */
 //Include libraries
+#include <SoftwareSerial.h>
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 
+//Set Software serial pins
+SoftwareSerial RS485 (12, 11); // RX, TX
+
 // set the LCD address to 0x27 for a 16 chars and 2 line display
-LiquidCrystal_I2C lcd(0x27,16,2);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 // Constants
+#define DIR 13
 #define keyStart 3
 #define keyUp 7
 #define keyDown 4
@@ -33,36 +38,46 @@ int modulesMenuPos = 0;
 int moduleMenuPos = 0;
 int selected = 0;
 int inModuleMenu = 0;
+
 int module1IsSelected = 0;
 int module2IsSelected = 0;
 int module3IsSelected = 0;
+int module1ForTestOn = 0;
+int module2ForTestOn = 0;
+int module3ForTestOn = 0;
+int module1DataSend = 0;
+int module2DataSend = 0;
+int module3DataSend = 0;
+
 int defaultDisplay = 0;
 int startKeyActive = 0;
 int startShowCounter = 0;
-int modulesMenuArrSize;
-int module1MenuArrSize;
-int module2MenuArrSize;
-int module3MenuArrSize;
+
+int modulesMenuArrSize = (sizeof(modulesMenu)/sizeof(int));
+int module1MenuArrSize = (sizeof(module1TubesName)/sizeof(int));
+int module2MenuArrSize = (sizeof(module2TubesName)/sizeof(int));
+int module3MenuArrSize = (sizeof(module3TubesName)/sizeof(int));
 
 
 void setup() {
   //Debug
   Serial.begin(9600);
   
+  RS485.begin(9600);
   // initialize the lcd 
   lcd.init();
  
   // Print a message to the LCD.
   lcd.backlight();
-  lcd.setCursor(0,0);
+  lcd.setCursor(0, 0);
   lcd.print("****************");
-  lcd.setCursor (3,1);
+  lcd.setCursor (3, 1);
   lcd.print("it-group4you!");
   delay(2000);
   lcd.clear();
-  lcd.setCursor(0,0);
+  lcd.setCursor(0, 0);
   lcd.print("Tester, started");
-  lcd.setCursor(0,1);
+  lcd.setCursor(0, 1);
   lcd.print("Loading...");
   delay(2000);
   lcd.clear();  
@@ -72,12 +87,7 @@ void setup() {
   pinMode(keyDown, INPUT);
   pinMode(keyBack, INPUT);
   pinMode(keySelect, INPUT);
-  
-  modulesMenuArrSize = (sizeof(modulesMenu)/sizeof(int)) - 1;
-  module1MenuArrSize = (sizeof(module1TubesName)/sizeof(int)) - 1;
-  module2MenuArrSize = (sizeof(module2TubesName)/sizeof(int)) - 1;
-  module3MenuArrSize = (sizeof(module3TubesName)/sizeof(int)) - 1;
-
+          
 }
 
 boolean selectedModule(){
@@ -150,18 +160,14 @@ void menuModules(boolean key1, boolean key2){
     
       
     //Menu move up & down
-    if (key2 && modulesMenuPos < modulesMenuArrSize) modulesMenuPos++;   
+    if (key2 && modulesMenuPos < (modulesMenuArrSize -1)) modulesMenuPos++;   
     else if (key1 && modulesMenuPos != 0) modulesMenuPos--;  
  
     lcd.print(modulesMenu[modulesMenuPos]);
 
 }
 
-void loop() {
- 
-  int module1ForTestOn = 0;
-  int module2ForTestOn = 0;
-  int module3ForTestOn = 0; 
+void loop() { 
   
   while(!startKeyActive){
       
@@ -173,9 +179,9 @@ void loop() {
     
     }
     
-    lcd.setCursor(0,0);
+    lcd.setCursor(0, 0);
     lcd.print("Menu");
-    lcd.setCursor(0,1);
+    lcd.setCursor(0, 1);
   
     // keyStart actions
     if (debounce(keyStart)){
@@ -185,15 +191,18 @@ void loop() {
         startKeyActive = 1;
       
         //Switch on testLed
-        digitalWrite(testLed,1);
+        digitalWrite(testLed, 1);
+        
+        //Switch off errorLed
+        digitalWrite(errorLed, 0);
       
       }else{
       
         //Error message: 1 module or more is not selected
         lcd.clear();
-        lcd.setCursor(0,0);
+        lcd.setCursor(0, 0);
         lcd.print("1 module or more");
-        lcd.setCursor(0,1);
+        lcd.setCursor(0, 1);
         lcd.print("is NOT selected");
         delay(2000);
         defaultDisplay = 1;
@@ -221,13 +230,13 @@ void loop() {
     //Module 1 menu display  
     if (modulesMenuPos == 0 && selected == 1){
   
-      if (debounce(keyDown) && moduleMenuPos < module1MenuArrSize) moduleMenuPos++;   
+      if (debounce(keyDown) && moduleMenuPos < (module1MenuArrSize -1)) moduleMenuPos++;   
       else if (debounce(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
-      
-      lcd.setCursor(0,0);
+    
+      lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print(module1TubesName[moduleMenuPos]);
       
       if (module1TubesSw[moduleMenuPos] == 0) lcd.print(" ");
@@ -241,9 +250,9 @@ void loop() {
             
             //Error message: Module 1 is selected!
             lcd.clear();
-            lcd.setCursor(0,0);
+            lcd.setCursor(0, 0);
             lcd.print("Module 1 is");
-            lcd.setCursor(0,1);
+            lcd.setCursor(0, 1);
             lcd.print("selected!");
             delay(2000);
             defaultDisplay = 1;
@@ -272,13 +281,13 @@ void loop() {
     //Module 2 menu display
     if (modulesMenuPos == 1 && selected == 1){
       
-      if (debounce(keyDown) && moduleMenuPos < module2MenuArrSize) moduleMenuPos++;   
+      if (debounce(keyDown) && moduleMenuPos < (module2MenuArrSize - 1)) moduleMenuPos++;   
       else if (debounce(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
       
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print(module2TubesName[moduleMenuPos]);
       
       if (module2TubesSw[moduleMenuPos] == 0) lcd.print(" ");
@@ -292,9 +301,9 @@ void loop() {
             
             //Error message: Module 2 is selected!
             lcd.clear();
-            lcd.setCursor(0,0);
+            lcd.setCursor(0, 0);
             lcd.print("Module 2 is");
-            lcd.setCursor(0,1);
+            lcd.setCursor(0, 1);
             lcd.print("selected!");
             delay(2000);
             defaultDisplay = 1;
@@ -323,7 +332,7 @@ void loop() {
     //Module 3 menu display
     if (modulesMenuPos == 2 && selected == 1){
   
-      if (debounce(keyDown) && moduleMenuPos < module3MenuArrSize) moduleMenuPos++;   
+      if (debounce(keyDown) && moduleMenuPos < (module3MenuArrSize - 1)) moduleMenuPos++;   
       else if (debounce(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
       
       lcd.setCursor(0,0);
@@ -343,9 +352,9 @@ void loop() {
             
             //Error message: Module 3 is selected!
             lcd.clear();
-            lcd.setCursor(0,0);
+            lcd.setCursor(0, 0);
             lcd.print("Module 3 is");
-            lcd.setCursor(0,1);
+            lcd.setCursor(0, 1);
             lcd.print("selected!");
             delay(2000);
             defaultDisplay = 1;
@@ -374,8 +383,9 @@ void loop() {
     delay(150);
     
   }
-  
-  if (startKeyActive && !startShowCounter ){
+
+  //Test start, keyStart pressed  
+  if (startKeyActive && startShowCounter == 0 ){
       
     //Module 1 status
     for (int i = 0; i < module1MenuArrSize; i ++){
@@ -399,7 +409,7 @@ void loop() {
         break;
       
       }
-    
+      
     }
     delay(10);
 
@@ -417,78 +427,110 @@ void loop() {
     delay(10);
 
     lcd.clear();
-    lcd.setCursor(0,0);
+    lcd.setCursor(0, 0);
     lcd.print("****************");
-    lcd.setCursor(0,1);
+    lcd.setCursor(0, 1);
     lcd.print("Test started");
     
     delay(2000);
     lcd.clear();
-
+    
     //Create Module 1 data package  
-    if (module1ForTestOn){
+    if (module1ForTestOn == 1 && module1DataSend == 0){
+      
+      //Switch rs485 transmit
+      digitalWrite(DIR, 1);
       
       //Module 1 list
       for (int i = 0; i < module1MenuArrSize; i ++){
       
         if (module1TubesSw[i] == 1){
+          //Debuge start
+          Serial.println("=========== SEND DATA TO SLAVE 1 =============");
+          Serial.println("ID = 1");          
+          Serial.println("CHECK = 9");
+          Serial.print("module1Sw = ");
+          Serial.println(i + 1);
+          //Debuge end
           
-          Serial.print("ID = ");
-          Serial.print("1, ");          
-          Serial.print("SWNR = ");
-          Serial.print(i);
-          Serial.print(", ");
-          Serial.println("STATUS = 1");
-        
+          //Send data package to slave 1
+          RS485.write(1);
+          RS485.write(9);
+          RS485.write(i + 1);
+          
+          //Switch rs485 receive
+          digitalWrite(DIR, 0);
+          module1DataSend = 1;
+          
         }
       
       }
       
     }
+    delay(10);
 
-    //Create Module 2 data package  
-    if (module2ForTestOn){
-      
-      //Module 2 list
-      for (int i = 0; i < module2MenuArrSize; i ++){
-      
-        if (module2TubesSw[i] == 1){
-          
-          Serial.print("ID = ");
-          Serial.print("2, ");
-          Serial.print("SWNR = ");
-          Serial.print(i);
-          Serial.print(", ");
-          Serial.println("STATUS = 1");
-        
-        }
-      
-      }
-      
-    }
-
-    //Create Module 3 data package  
-    if (module3ForTestOn){
-      
-      //Module 1 list
-      for (int i = 0; i < module3MenuArrSize; i ++){
-      
-        if (module3TubesSw[i] == 1){
-          
-          Serial.print("ID = ");
-          Serial.print("3, ");          
-          Serial.print("SWNR = ");
-          Serial.print(i);
-          Serial.print(", ");
-          Serial.println("STATUS = 1");
-        
-        }
-      
-      }
-      
-    }
+    if (RS485.available() >= 2) {
     
-    startShowCounter = 1;
+      //Read first byte
+      byte id = RS485.read();    
+
+        //Debug start
+        Serial.println("=========== RECEIVE ID FROM SLAVE =============");
+        Serial.print("ID = ");
+        Serial.println(id);
+        //Debug end
+      
+        if (id == 1){
+          
+          byte module1Sw = RS485.read();
+          
+          //Debug start
+          Serial.println("=========== RECEIVE DATA FROM SLAVE 1 =============");
+          Serial.print("ID = ");
+          Serial.println(id);
+          Serial.print("module1Sw = ");
+          Serial.println(module1Sw);
+          //Debug end
+          
+          if (module1TubesSw[module1Sw - 1]){
+            
+            //Switch rs485 transmit
+            digitalWrite(DIR, 1);
+            
+            //Debug start
+            Serial.println("=========== SEND CHECK TO SLAVE 1 =============");
+            Serial.print("ID = 1");
+            Serial.print("CHECK = 8");
+            //Debug end
+          
+            RS485.write(1);
+            RS485.write(8);
+            RS485.write(module1Sw);
+            
+            //Switch rs485 receive
+            digitalWrite(DIR, 0);
+            startShowCounter = 1;
+            
+          } else{
+            
+            digitalWrite(errorLed, 1);
+            digitalWrite(testLed, 0);
+            
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Module 1");
+            lcd.setCursor(0, 1);
+            lcd.print("ERROR");
+            delay(3000);
+            startKeyActive = 0;
+            module1DataSend = 0;
+            
+          } 
+          delay(10);
+          
+        }
+    
+    }
     
   }
   
@@ -498,7 +540,7 @@ void loop() {
     //Displayed if Module 1 is on  
     if (module1ForTestOn){
         
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       lcd.print("Module 1 test");
       
       //Module 1 list
@@ -506,10 +548,10 @@ void loop() {
       
         if (module1TubesSw[i] == 1){
                 
-          lcd.setCursor(0,1);
+          lcd.setCursor(0, 1);
           lcd.print("                ");
           delay(750);
-          lcd.setCursor(0,1);
+          lcd.setCursor(0, 1);
           lcd.print(module1TubesName[i]);
           delay(1250);
         
@@ -522,7 +564,7 @@ void loop() {
     //Displayed if Module 2 is on
     if (module2ForTestOn){
         
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       lcd.print("Module 2 test");
       
       //Module 2 list
@@ -530,10 +572,10 @@ void loop() {
       
         if (module2TubesSw[i] == 1){
                 
-          lcd.setCursor(0,1);
+          lcd.setCursor(0, 1);
           lcd.print("                ");
           delay(750);
-          lcd.setCursor(0,1);
+          lcd.setCursor(0, 1);
           lcd.print(module2TubesName[i]);
           delay(1250);
         
@@ -546,7 +588,7 @@ void loop() {
     //Displayed if Module 3 is on
     if (module3ForTestOn){
         
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       lcd.print("Module 3 test");
       
       //Module 3 list
@@ -554,10 +596,10 @@ void loop() {
       
         if (module3TubesSw[i] == 1){
                 
-          lcd.setCursor(0,1);
+          lcd.setCursor(0, 1);
           lcd.print("                ");
           delay(750);
-          lcd.setCursor(0,1);
+          lcd.setCursor(0, 1);
           lcd.print(module3TubesName[i]);
           delay(1250);
         
