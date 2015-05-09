@@ -3,67 +3,86 @@
 
 */
 //Include libraries
+#include <SoftEasyTransfer.h> 
 #include <SoftwareSerial.h>
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 
-//Set Software serial pins
-SoftwareSerial RS485 (12, 11); // RX, TX
-
-// set the LCD address to 0x27 for a 16 chars and 2 line display
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-
 // Constants
-#define DIR 13
+
 #define keyStart 3
-#define keyUp 7
 #define keyDown 4
 #define keyBack 5
 #define keySelect 6
+#define keyUp 7
 #define testLed 8
 #define doneLed 9
 #define errorLed 10
+#define txPin 11
+#define rxPin 12
+#define DIR 13
+
+//Set Software serial pins
+SoftwareSerial RS485 (rxPin, txPin); // RX, TX
+
+//Set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+//SoftEasyTransfer setup
+SoftEasyTransfer ET;
+
+struct RECEIVE_DATA_STRUCTURE{
+  
+  byte ID;
+  float measure1;
+  float measure2;
+  float measure3;
+
+};
+
+RECEIVE_DATA_STRUCTURE measureData;
 
 const char* modulesMenu[] = {"Module 1", "Module 2", "Module 3"};
-const char* module1TubesName[] = {"M1 Lamp 1", "M1 Lamp 2", "M1 Lamp 3"};
-const char* module2TubesName[] = {"M2 Lamp 1", "M2 Lamp 2", "M2 Lamp 3"};
-const char* module3TubesName[] = {"M3 Lamp 1", "M3 Lamp 2", "M3 Lamp 3"};
+const char* module1TubesName[] = {"M1 Lamp 1", "M1 Lamp 2", "M1 Lamp 3", "M1 Lamp 4", "M1 Lamp 5"};
+const char* module2TubesName[] = {"M2 Lamp 1", "M2 Lamp 2", "M2 Lamp 3", "M2 Lamp 4", "M2 Lamp 5"};
+const char* module3TubesName[] = {"M3 Lamp 1", "M3 Lamp 2", "M3 Lamp 3", "M3 Lamp 4", "M3 Lamp 5"};
 
 // Variables & arrays
-int module1TubesSw[] = {0, 0, 0};
-int module2TubesSw[] = {0, 0, 0};
-int module3TubesSw[] = {0, 0, 0};
+byte module1TubesSw[] = {0, 0, 0, 0, 0};
+byte module2TubesSw[] = {0, 0, 0, 0, 0};
+byte module3TubesSw[] = {0, 0, 0, 0, 0};
 
-int modulesMenuPos = 0;
-int moduleMenuPos = 0;
-int selected = 0;
-int inModuleMenu = 0;
+byte modulesMenuPos = 0;
+byte moduleMenuPos = 0;
+byte selected = 0;
+byte inModuleMenu = 0;
 
-int module1IsSelected = 0;
-int module2IsSelected = 0;
-int module3IsSelected = 0;
-int module1ForTestOn = 0;
-int module2ForTestOn = 0;
-int module3ForTestOn = 0;
-int module1DataSend = 0;
-int module2DataSend = 0;
-int module3DataSend = 0;
+byte module1IsSelected = 0;
+byte module2IsSelected = 0;
+byte module3IsSelected = 0;
+byte module1ForTestOn = 0;
+byte module2ForTestOn = 0;
+byte module3ForTestOn = 0;
+byte module1DataSend = 0;
+byte module2DataSend = 0;
+byte module3DataSend = 0;
 
-int defaultDisplay = 0;
-int startKeyActive = 0;
-int startShowCounter = 0;
+byte defaultDisplay = 0;
+byte startKeyActive = 0;
+byte startShowCounter = 0;
 
-int modulesMenuArrSize = (sizeof(modulesMenu)/sizeof(int));
-int module1MenuArrSize = (sizeof(module1TubesName)/sizeof(int));
-int module2MenuArrSize = (sizeof(module2TubesName)/sizeof(int));
-int module3MenuArrSize = (sizeof(module3TubesName)/sizeof(int));
+byte modulesMenuArrSize = (sizeof(modulesMenu)/sizeof(int));
+byte module1MenuArrSize = (sizeof(module1TubesName)/sizeof(int));
+byte module2MenuArrSize = (sizeof(module2TubesName)/sizeof(int));
+byte module3MenuArrSize = (sizeof(module3TubesName)/sizeof(int));
 
 
 void setup() {
-  //Debug
-  Serial.begin(9600);
   
   RS485.begin(9600);
+  
+  ET.begin(details(measureData), &RS485);
+  
   // initialize the lcd 
   lcd.init();
  
@@ -169,6 +188,7 @@ void menuModules(boolean key1, boolean key2){
 
 void loop() { 
   
+  //Menu start
   while(!startKeyActive){
       
     //Default display
@@ -383,6 +403,7 @@ void loop() {
     delay(150);
     
   }
+  //End menu start
 
   //Test start, keyStart pressed  
   if (startKeyActive && startShowCounter == 0 ){
@@ -445,13 +466,6 @@ void loop() {
       for (int i = 0; i < module1MenuArrSize; i ++){
       
         if (module1TubesSw[i] == 1){
-          //Debuge start
-          Serial.println("=========== SEND DATA TO SLAVE 1 =============");
-          Serial.println("ID = 1");          
-          Serial.println("CHECK = 9");
-          Serial.print("module1Sw = ");
-          Serial.println(i + 1);
-          //Debuge end
           
           //Send data package to slave 1
           RS485.write(1);
@@ -468,40 +482,78 @@ void loop() {
       
     }
     delay(10);
+    //End create Module 1 data package 
+
+    //Create Module 2 data package  
+    if (module2ForTestOn == 1 && module2DataSend == 0){
+      
+      //Switch rs485 transmit
+      digitalWrite(DIR, 1);
+      
+      //Module 1 list
+      for (int i = 0; i < module2MenuArrSize; i ++){
+      
+        if (module2TubesSw[i] == 1){
+          
+          //Send data package to slave 1
+          RS485.write(1);
+          RS485.write(9);
+          RS485.write(i + 1);
+          
+          //Switch rs485 receive
+          digitalWrite(DIR, 0);
+          module2DataSend = 1;
+          
+        }
+      
+      }
+      
+    }
+    delay(10);
+    //End create Module 2 data package
+
+    //Create Module 3 data package  
+    if (module3ForTestOn == 1 && module3DataSend == 0){
+      
+      //Switch rs485 transmit
+      digitalWrite(DIR, 1);
+      
+      //Module 1 list
+      for (int i = 0; i < module3MenuArrSize; i ++){
+      
+        if (module3TubesSw[i] == 1){
+          
+          //Send data package to slave 1
+          RS485.write(1);
+          RS485.write(9);
+          RS485.write(i + 1);
+          
+          //Switch rs485 receive
+          digitalWrite(DIR, 0);
+          module3DataSend = 1;
+          
+        }
+      
+      }
+      
+    }
+    delay(10);
+    //End create Module 3 data package
 
     if (RS485.available() >= 2) {
     
       //Read first byte
       byte id = RS485.read();    
-
-        //Debug start
-        Serial.println("=========== RECEIVE ID FROM SLAVE =============");
-        Serial.print("ID = ");
-        Serial.println(id);
-        //Debug end
       
+        //Module 1 check
         if (id == 1){
           
           byte module1Sw = RS485.read();
-          
-          //Debug start
-          Serial.println("=========== RECEIVE DATA FROM SLAVE 1 =============");
-          Serial.print("ID = ");
-          Serial.println(id);
-          Serial.print("module1Sw = ");
-          Serial.println(module1Sw);
-          //Debug end
           
           if (module1TubesSw[module1Sw - 1]){
             
             //Switch rs485 transmit
             digitalWrite(DIR, 1);
-            
-            //Debug start
-            Serial.println("=========== SEND CHECK TO SLAVE 1 =============");
-            Serial.print("ID = 1");
-            Serial.print("CHECK = 8");
-            //Debug end
           
             RS485.write(1);
             RS485.write(8);
@@ -529,10 +581,88 @@ void loop() {
           delay(10);
           
         }
+        //End module 2 check
+
+        //Module 2 check
+        if (id == 2){
+          
+          byte module2Sw = RS485.read();
+          
+          if (module2TubesSw[module2Sw - 1]){
+            
+            //Switch rs485 transmit
+            digitalWrite(DIR, 1);
+          
+            RS485.write(2);
+            RS485.write(8);
+            RS485.write(module2Sw);
+            
+            //Switch rs485 receive
+            digitalWrite(DIR, 0);
+            startShowCounter = 1;
+            
+          } else{
+            
+            digitalWrite(errorLed, 1);
+            digitalWrite(testLed, 0);
+            
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Module 2");
+            lcd.setCursor(0, 1);
+            lcd.print("ERROR");
+            delay(3000);
+            startKeyActive = 0;
+            module2DataSend = 0;
+            
+          } 
+          delay(10);
+          
+        }
+        //End module 2 check
+
+        //Module 3 check
+        if (id == 3){
+          
+          byte module3Sw = RS485.read();
+          
+          if (module3TubesSw[module3Sw - 1]){
+            
+            //Switch rs485 transmit
+            digitalWrite(DIR, 1);
+          
+            RS485.write(3);
+            RS485.write(8);
+            RS485.write(module3Sw);
+            
+            //Switch rs485 receive
+            digitalWrite(DIR, 0);
+            startShowCounter = 1;
+            
+          } else{
+            
+            digitalWrite(errorLed, 1);
+            digitalWrite(testLed, 0);
+            
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Module 3");
+            lcd.setCursor(0, 1);
+            lcd.print("ERROR");
+            delay(3000);
+            startKeyActive = 0;
+            module3DataSend = 0;
+            
+          } 
+          delay(10);
+          
+        }
+        //End module 3 check
     
     }
     
   }
+  //End test start, keyStart pressed
   
   //Show tested modules
   while(startShowCounter != 0 && startShowCounter < 4){
@@ -613,5 +743,15 @@ void loop() {
     delay(1000);
 
   }
+  //End show tested modules
+  
+  //Debug Start
+  if(ET.receiveData()){
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(measureData.measure1);
+  }
+  //Debug end
 
 }

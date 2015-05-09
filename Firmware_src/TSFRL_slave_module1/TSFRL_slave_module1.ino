@@ -1,22 +1,50 @@
+#include <SoftEasyTransfer.h> 
 #include <SoftwareSerial.h>
 
-#define DIR 13
+// Constants
 #define socket1FailLed 3
 #define socket2FailLed 4
 #define socket3FailLed 5
+#define module1TubesSw1 6
+#define module1TubesSw2 7
+#define module1TubesSw3 8
+#define module1TubesSw4 9
+#define module1TubesSw5 10
+#define txPin 11
+#define rxPin 12
+#define DIR 13
+#define voltageMeasureReader1 A1
+#define voltageMeasureReader2 A2
+#define voltageMeasureReader3 A3
+
+SoftEasyTransfer ET; 
+
+
+struct SEND_DATA_STRUCTURE{
+  
+  byte ID;
+  float measure1;
+  float measure2;
+  float measure3;
+  
+ };
+ 
+SEND_DATA_STRUCTURE measureData;
 
 // Variables & arrays
 
 //Module ID
 const byte ID = 1;
  
-SoftwareSerial RS485 (12, 11); // RX, TX
+SoftwareSerial RS485 (rxPin, txPin);
  
 void setup(){
   
-  Serial.begin(9600);
+  //Serial.begin(9600);
  
   RS485.begin(9600);
+  
+  ET.begin(details(measureData), &RS485);
   
   // RS485 data recive
   digitalWrite(DIR, 0);
@@ -38,7 +66,7 @@ void loop(){
     byte id = RS485.read();
    
     //Debug start         
-    Serial.println("=========== RECEIVE ID FROM MASTER =============");
+    //Serial.println("=========== RECEIVE ID FROM MASTER =============");
     Serial.print("Count: ");
     Serial.println(dataCount);
     Serial.print("ID = ");
@@ -100,8 +128,18 @@ void loop(){
        
        switch (module1Sw) {
          case 1:
-           
+           //Debug
            digitalWrite(socket1FailLed, 1);
+           delay(20000);
+           
+           measureData.ID = 1;
+           measureData.measure1 = 0.41;
+           
+           digitalWrite(DIR, 1);
+     
+           ET.sendData();
+             
+           digitalWrite(DIR, 0);
            break;
            
          case 2:
