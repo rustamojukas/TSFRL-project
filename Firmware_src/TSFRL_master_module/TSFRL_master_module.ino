@@ -1,6 +1,4 @@
 /*
-
-
 */
 //Include libraries
 #include <SoftEasyTransfer.h> 
@@ -543,21 +541,22 @@ void loop() {
     if (RS485.available() >= 2) {
     
       //Read first byte
-      byte id = RS485.read();    
+      byte id = RS485.read();
+      delay(10);    
       
         //Module 1 check
         if (id == 1){
           
-          byte module1Sw = RS485.read();
+          byte moduleSw = RS485.read();
           
-          if (module1TubesSw[module1Sw - 1]){
+          if (module1TubesSw[moduleSw - 1]){
             
             //Switch rs485 transmit
             digitalWrite(DIR, 1);
           
             RS485.write(1);
             RS485.write(8);
-            RS485.write(module1Sw);
+            RS485.write(moduleSw);
             
             //Switch rs485 receive
             digitalWrite(DIR, 0);
@@ -586,16 +585,16 @@ void loop() {
         //Module 2 check
         if (id == 2){
           
-          byte module2Sw = RS485.read();
+          byte moduleSw = RS485.read();
           
-          if (module2TubesSw[module2Sw - 1]){
+          if (module2TubesSw[moduleSw - 1]){
             
             //Switch rs485 transmit
             digitalWrite(DIR, 1);
           
             RS485.write(2);
             RS485.write(8);
-            RS485.write(module2Sw);
+            RS485.write(moduleSw);
             
             //Switch rs485 receive
             digitalWrite(DIR, 0);
@@ -624,16 +623,16 @@ void loop() {
         //Module 3 check
         if (id == 3){
           
-          byte module3Sw = RS485.read();
+          byte moduleSw = RS485.read();
           
-          if (module3TubesSw[module3Sw - 1]){
+          if (module3TubesSw[moduleSw - 1]){
             
             //Switch rs485 transmit
             digitalWrite(DIR, 1);
           
             RS485.write(3);
             RS485.write(8);
-            RS485.write(module3Sw);
+            RS485.write(moduleSw);
             
             //Switch rs485 receive
             digitalWrite(DIR, 0);
@@ -750,6 +749,9 @@ void loop() {
 
     lcd.clear();
     lcd.setCursor(0, 0);
+    lcd.print("ID = ");
+    lcd.print(measureData.ID);
+    lcd.setCursor(0, 1);
     lcd.print(measureData.measure1);
   }
   //Debug end
