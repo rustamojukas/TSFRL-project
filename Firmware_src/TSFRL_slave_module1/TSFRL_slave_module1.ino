@@ -72,7 +72,8 @@ void timer(){
 }
 
 void loop(){
-  
+ 
+ //Start action 
  if (RS485.available() >= 2) {
    
     //Read first byte
@@ -100,8 +101,9 @@ void loop(){
      if (check == 8){
        
        switch (moduleSw) {
+
          case 1:
-           //Debug
+
            digitalWrite(moduleTubesSw1, 1);
            proceedTimer = 1;
 
@@ -110,21 +112,29 @@ void loop(){
          case 2:
            
            digitalWrite(moduleTubesSw2, 1);
+           proceedTimer = 1;
+           
            break;
            
          case 3:
            
            digitalWrite(moduleTubesSw3, 1);
+           proceedTimer = 1;
+           
            break;
                  
          case 4:
            
            digitalWrite(moduleTubesSw4, 1);
+           proceedTimer = 1;
+           
            break;
 
          case 5:
            
            digitalWrite(moduleTubesSw5, 1);
+           proceedTimer = 1;
+           
            break;
          
        }
@@ -134,40 +144,100 @@ void loop(){
      if (check == 7){
        
        switch (moduleSw) {
+
          case 1:
-           //Debug
+
            digitalWrite(moduleTubesSw1, 0);
-           delay(5000);
+           delay(10);
            
-           measureData.ID = 1;
+           measureData.ID = ID;
            measureData.moduleSw = moduleSw;
-           measureData.measure1 = 0.41;
+           measureData.measure1 = moduleMeasuredData[0];
+           measureData.measure2 = moduleMeasuredData[1];
+           measureData.measure3 = moduleMeasuredData[2];
            
            digitalWrite(DIR, 1);
      
            ET.sendData();
              
            digitalWrite(DIR, 0);
+           
            break;
            
          case 2:
            
            digitalWrite(moduleTubesSw2, 0);
+           delay(10);
+           
+           measureData.ID = ID;
+           measureData.moduleSw = moduleSw;
+           measureData.measure1 = moduleMeasuredData[0];
+           measureData.measure2 = moduleMeasuredData[1];
+           measureData.measure3 = moduleMeasuredData[2];
+           
+           digitalWrite(DIR, 1);
+     
+           ET.sendData();
+             
+           digitalWrite(DIR, 0);
+           
            break;
            
          case 3:
            
            digitalWrite(moduleTubesSw3, 0);
+           delay(10);
+           
+           measureData.ID = ID;
+           measureData.moduleSw = moduleSw;
+           measureData.measure1 = moduleMeasuredData[0];
+           measureData.measure2 = moduleMeasuredData[1];
+           measureData.measure3 = moduleMeasuredData[2];
+           
+           digitalWrite(DIR, 1);
+     
+           ET.sendData();
+             
+           digitalWrite(DIR, 0);
+           
            break;
                  
          case 4:
            
            digitalWrite(moduleTubesSw4, 0);
+           delay(10);
+           
+           measureData.ID = ID;
+           measureData.moduleSw = moduleSw;
+           measureData.measure1 = moduleMeasuredData[0];
+           measureData.measure2 = moduleMeasuredData[1];
+           measureData.measure3 = moduleMeasuredData[2];
+           
+           digitalWrite(DIR, 1);
+     
+           ET.sendData();
+             
+           digitalWrite(DIR, 0);
+           
            break;
 
          case 5:
            
            digitalWrite(moduleTubesSw5, 0);
+           delay(10);
+           
+           measureData.ID = ID;
+           measureData.moduleSw = moduleSw;
+           measureData.measure1 = moduleMeasuredData[0];
+           measureData.measure2 = moduleMeasuredData[1];
+           measureData.measure3 = moduleMeasuredData[2];
+           
+           digitalWrite(DIR, 1);
+     
+           ET.sendData();
+             
+           digitalWrite(DIR, 0);
+           
            break;         
        }
        
@@ -180,13 +250,13 @@ void loop(){
    }
    //End start action
    
-   //Show timer start
+   //Timer start
    while(proceedTimer){
     
      timer();
     
    }
-   //End show timer
+   //End timer
 
    //Measure start
    while(measureStart){
