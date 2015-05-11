@@ -71,6 +71,23 @@ void timer(){
 
 }
 
+float voltmeter(int readPin){
+
+  float result = 0.0;
+  
+  for (byte i = 0; i < 3; i++){
+    
+    float volts = ((analogRead(readPin)-4.1) * 5.0) / 1023.0;
+
+    result += volts;
+    delay(100);
+
+  }
+  
+  return result/3.0;
+  
+}
+
 void loop(){
  
  //Start action 
@@ -261,8 +278,17 @@ void loop(){
    //Measure start
    while(measureStart){
     
-     //Action;
-    
+     moduleMeasuredData[0] = voltmeter(voltageMeasureReader1);
+     delay(100);
+     
+     moduleMeasuredData[1] = voltmeter(voltageMeasureReader2);
+     delay(100);
+
+     moduleMeasuredData[2] = voltmeter(voltageMeasureReader3);
+     delay(100);
+     
+     measureStart = 0;
+     
    }
    //End measure
 
