@@ -32,6 +32,7 @@ SoftEasyTransfer ET;
 struct RECEIVE_DATA_STRUCTURE{
   
   byte ID;
+  byte moduleSw;
   float measure1;
   float measure2;
   float measure3;
@@ -50,8 +51,13 @@ byte module1TubesSw[] = {0, 0, 0, 0, 0};
 byte module2TubesSw[] = {0, 0, 0, 0, 0};
 byte module3TubesSw[] = {0, 0, 0, 0, 0};
 
+float module1MeasuredData[] = {0.0, 0.0, 0.0, 0.0};
+float module2MeasuredData[] = {0.0, 0.0, 0.0, 0.0};
+float module3MeasuredData[] = {0.0, 0.0, 0.0, 0.0};
+
 byte modulesMenuPos = 0;
 byte moduleMenuPos = 0;
+byte showMeasuredDataPos = 0;
 byte selected = 0;
 byte inModuleMenu = 0;
 
@@ -64,10 +70,20 @@ byte module3ForTestOn = 0;
 byte module1DataSend = 0;
 byte module2DataSend = 0;
 byte module3DataSend = 0;
+byte module1MeasureDataSend = 0;
+byte module2MeasureDataSend = 0;
+byte module3MeasureDataSend = 0;
 
 byte defaultDisplay = 0;
 byte startKeyActive = 0;
 byte startShowCounter = 0;
+
+//timer
+int second = 7190;
+byte showTimer = 0;
+byte testEnd = 0;
+byte moduleCounter = 0;
+byte savedDataCounter = 0;
 
 byte modulesMenuArrSize = (sizeof(modulesMenu)/sizeof(int));
 byte module1MenuArrSize = (sizeof(module1TubesName)/sizeof(int));
@@ -76,7 +92,7 @@ byte module3MenuArrSize = (sizeof(module3TubesName)/sizeof(int));
 
 
 void setup() {
-  
+//  Serial.begin(9600);
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
@@ -105,6 +121,48 @@ void setup() {
   pinMode(keyBack, INPUT);
   pinMode(keySelect, INPUT);
           
+}
+
+void timer(){
+
+  int currentHour = (second/60)/60;
+  int currentMinute = (second/60)%60;
+  int currentSecond = second%60;
+  
+  //Timer 2:00:00 is stop
+  if (currentHour == 2 && currentMinute == 0 && currentSecond == 0){
+    
+    testEnd = 1;
+    showTimer = 0;
+
+  }
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Test time: ");
+  lcd.setCursor(0 , 1);
+  lcd.print(currentHour);
+  lcd.print(":");    
+  if (currentMinute < 10){
+    
+    lcd.print("0");
+    lcd.print(currentMinute);
+    
+  }else lcd.print(currentMinute);
+
+
+  lcd.print(":");
+  
+  if (currentSecond < 10){
+    
+    lcd.print("0");
+    lcd.print(currentSecond);
+    
+  }else lcd.print(currentSecond);
+
+  delay(1000);
+  second++;
+
 }
 
 boolean selectedModule(){
@@ -740,20 +798,169 @@ void loop() {
     
     startShowCounter++;    
     delay(1000);
+    if (startShowCounter == 3) showTimer = 1;
 
   }
   //End show tested modules
   
-  //Debug Start
-  if(ET.receiveData()){
-
+  //Show timer start
+  while(showTimer){
+  
+    timer();
+  
+  }
+  //End show timer
+  
+  //Test end
+  if (testEnd){
+    
+    digitalWrite(testLed, 0);
+    digitalWrite(doneLed, 1);
+    
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("ID = ");
-    lcd.print(measureData.ID);
-    lcd.setCursor(0, 1);
-    lcd.print(measureData.measure1);
+    lcd.print("TEST END");
+    delay(3000);      
+
+    //Create Module 1 data package for measure data  
+    if (module1ForTestOn == 1 && module1MeasureDataSend == 0){
+      
+      //Switch rs485 transmit
+      digitalWrite(DIR, 1);
+      
+      //Module 1 list
+      for (int i = 0; i < module1MenuArrSize; i ++){
+      
+        if (module1TubesSw[i] == 1){
+          
+          //Send data package to slave 1
+          RS485.write(1);
+          RS485.write(7);
+          RS485.write(i + 1);
+          
+          //Switch rs485 receive
+          digitalWrite(DIR, 0);
+          module1MeasureDataSend = 1;
+          moduleCounter++;
+          
+        }
+      
+      }
+      
+    }
+    delay(10);
+    //End create Module 1 data package for measure data
+    
+    //Debug start
+    moduleCounter++;
+    moduleCounter++;
+    //Debug end
+    savedDataCounter = moduleCounter + 1;
+    testEnd = 0;
+    
   }
-  //Debug end
+  
+  //Start get and save measured data
+  while(moduleCounter >= 1){
+  
+    if(ET.receiveData()){
+      
+      if (measureData.ID == 1){
+        
+        delay(10);
+          
+        module1MeasuredData[0] = float(measureData.moduleSw - 1);
+        module1MeasuredData[1] = measureData.measure1;
+        module1MeasuredData[2] = 0.15; //measureData.measure2;
+        module1MeasuredData[3] = 0.18; //measureData.measure3;
+        moduleCounter--;
+        savedDataCounter--;
+          
+      }
+      
+      if (2 == 2){
+          
+        delay(10);
+        
+        module2MeasuredData[0] = float(measureData.moduleSw - 1);
+        module2MeasuredData[1] = 0.21;//measureData.measure1;
+        module2MeasuredData[2] = 0.22;//measureData.measure2;
+        module2MeasuredData[3] = 0.26;//measureData.measure3;
+        moduleCounter--;
+        savedDataCounter--;
+          
+      }
+
+      if (3 == 3){
+        
+        delay(10);
+        
+        module3MeasuredData[0] = float(measureData.moduleSw - 1);
+        module3MeasuredData[1] = 0.33;//measureData.measure1;
+        module3MeasuredData[2] = 0.39;//measureData.measure2;
+        module3MeasuredData[3] = 0.31;//measureData.measure3;
+        moduleCounter--;
+        savedDataCounter--;
+          
+      }
+
+    }
+   
+  }
+  //End get and save measured data
+  
+  while(savedDataCounter == 1){
+  
+    if (debounce(keyDown) && showMeasuredDataPos < 3) showMeasuredDataPos++;   
+    else if (debounce(keyUp) && showMeasuredDataPos != 0) showMeasuredDataPos--;
+    
+    //Show measured data from module 1
+    if (showMeasuredDataPos == 0){
+    
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(module1TubesName[int(module1MeasuredData[0])]);
+      lcd.setCursor(0, 1);
+      lcd.print(module1MeasuredData[1]);
+      lcd.print(" ");
+      lcd.print(module1MeasuredData[2]);
+      lcd.print(" ");    
+      lcd.print(module1MeasuredData[3]);
+
+    }
+    
+    //Show measured data from module 2
+    if (showMeasuredDataPos == 1){
+        
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(module2TubesName[int(module2MeasuredData[0])]);
+      lcd.setCursor(0, 1);
+      lcd.print(module2MeasuredData[1]);
+      lcd.print(" ");
+      lcd.print(module2MeasuredData[2]);
+      lcd.print(" ");    
+      lcd.print(module2MeasuredData[3]);
+      
+    }
+    
+    //Show measured data from module 3
+    if (showMeasuredDataPos == 2){
+        
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(module3TubesName[int(module3MeasuredData[0])]);
+      lcd.setCursor(0, 1);
+      lcd.print(module3MeasuredData[1]);
+      lcd.print(" ");
+      lcd.print(module3MeasuredData[2]);
+      lcd.print(" ");    
+      lcd.print(module3MeasuredData[3]);
+    
+    }
+  
+  delay(250);
+  
+  }
 
 }

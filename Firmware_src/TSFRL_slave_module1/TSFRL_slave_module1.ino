@@ -23,6 +23,7 @@ SoftEasyTransfer ET;
 struct SEND_DATA_STRUCTURE{
   
   byte ID;
+  byte moduleSw;
   float measure1;
   float measure2;
   float measure3;
@@ -78,9 +79,33 @@ void loop(){
          case 1:
            //Debug
            digitalWrite(socket1FailLed, 1);
-           delay(10000);
+
+           break;
+           
+         case 2:
+           
+           digitalWrite(socket2FailLed, 1);
+           break;
+           
+         case 3:
+           
+           digitalWrite(socket3FailLed, 1);
+           break;
+         
+       }
+       
+     }
+
+     if (check == 7){
+       
+       switch (moduleSw) {
+         case 1:
+           //Debug
+           digitalWrite(socket1FailLed, 0);
+           delay(5000);
            
            measureData.ID = 1;
+           measureData.moduleSw = moduleSw;
            measureData.measure1 = 0.41;
            
            digitalWrite(DIR, 1);
@@ -103,7 +128,8 @@ void loop(){
        }
        
      }
-     
+
+
     }     
     else RS485.flush();
     
