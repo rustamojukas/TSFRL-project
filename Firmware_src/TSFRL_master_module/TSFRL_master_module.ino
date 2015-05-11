@@ -79,7 +79,7 @@ byte startKeyActive = 0;
 byte startShowCounter = 0;
 
 //timer
-int second = 7190;
+int second = 7190;//DEBUG
 byte showTimer = 0;
 byte testEnd = 0;
 byte moduleCounter = 0;
@@ -851,6 +851,64 @@ void loop() {
     delay(10);
     //End create Module 1 data package for measure data
     
+    //Create Module 2 data package for measure data  
+    if (module2ForTestOn == 1 && module2MeasureDataSend == 0){
+      
+      //Switch rs485 transmit
+      digitalWrite(DIR, 1);
+      
+      //Module 1 list
+      for (int i = 0; i < module2MenuArrSize; i ++){
+      
+        if (module2TubesSw[i] == 1){
+          
+          //Send data package to slave 1
+          RS485.write(2);
+          RS485.write(7);
+          RS485.write(i + 1);
+          
+          //Switch rs485 receive
+          digitalWrite(DIR, 0);
+          module2MeasureDataSend = 1;
+          moduleCounter++;
+          
+        }
+      
+      }
+      
+    }
+    delay(10);
+    //End create Module 2 data package for measure data
+    
+    //Create Module 3 data package for measure data  
+    if (module3ForTestOn == 1 && module3MeasureDataSend == 0){
+      
+      //Switch rs485 transmit
+      digitalWrite(DIR, 1);
+      
+      //Module 1 list
+      for (int i = 0; i < module3MenuArrSize; i ++){
+      
+        if (module3TubesSw[i] == 1){
+          
+          //Send data package to slave 1
+          RS485.write(3);
+          RS485.write(7);
+          RS485.write(i + 1);
+          
+          //Switch rs485 receive
+          digitalWrite(DIR, 0);
+          module3MeasureDataSend = 1;
+          moduleCounter++;
+          
+        }
+      
+      }
+      
+    }
+    delay(10);
+    //End create Module 3 data package for measure data
+    
     //Debug start
     moduleCounter++;
     moduleCounter++;
@@ -882,7 +940,7 @@ void loop() {
           
         delay(10);
         
-        module2MeasuredData[0] = float(measureData.moduleSw - 1);
+        module2MeasuredData[0] = 1.0;//float(measureData.moduleSw - 1);
         module2MeasuredData[1] = 0.21;//measureData.measure1;
         module2MeasuredData[2] = 0.22;//measureData.measure2;
         module2MeasuredData[3] = 0.26;//measureData.measure3;
@@ -895,7 +953,7 @@ void loop() {
         
         delay(10);
         
-        module3MeasuredData[0] = float(measureData.moduleSw - 1);
+        module3MeasuredData[0] = 4.0;//float(measureData.moduleSw - 1);
         module3MeasuredData[1] = 0.33;//measureData.measure1;
         module3MeasuredData[2] = 0.39;//measureData.measure2;
         module3MeasuredData[3] = 0.31;//measureData.measure3;
@@ -911,7 +969,7 @@ void loop() {
   
   while(savedDataCounter == 1){
   
-    if (debounce(keyDown) && showMeasuredDataPos < 3) showMeasuredDataPos++;   
+    if (debounce(keyDown) && showMeasuredDataPos < 2) showMeasuredDataPos++;   
     else if (debounce(keyUp) && showMeasuredDataPos != 0) showMeasuredDataPos--;
     
     //Show measured data from module 1
@@ -959,7 +1017,7 @@ void loop() {
     
     }
   
-  delay(250);
+  delay(200);
   
   }
 

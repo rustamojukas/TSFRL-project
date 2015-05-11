@@ -5,11 +5,11 @@
 #define socket1FailLed 3
 #define socket2FailLed 4
 #define socket3FailLed 5
-#define module1TubesSw1 6
-#define module1TubesSw2 7
-#define module1TubesSw3 8
-#define module1TubesSw4 9
-#define module1TubesSw5 10
+#define moduleTubesSw1 6
+#define moduleTubesSw2 7
+#define moduleTubesSw3 8
+#define moduleTubesSw4 9
+#define moduleTubesSw5 10
 #define txPin 11
 #define rxPin 12
 #define DIR 13
@@ -33,6 +33,11 @@ struct SEND_DATA_STRUCTURE{
 SEND_DATA_STRUCTURE measureData;
 
 // Variables & arrays
+float moduleMeasuredData[] = {0.0, 0.0, 0.0};
+
+int second = 7190;//DEBUG
+byte proceedTimer = 0;
+byte measureStart = 0;
 
 //Module ID
 const byte ID = 1;
@@ -44,6 +49,25 @@ void setup(){
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
+
+}
+
+void timer(){
+
+  int currentHour = (second/60)/60;
+  int currentMinute = (second/60)%60;
+  int currentSecond = second%60;
+  
+  //Timer 2:00:00 is stop
+  if (currentHour == 2 && currentMinute == 0 && currentSecond == 0){
+    
+    proceedTimer = 0;
+    measureStart = 1;
+
+  }
+
+  delay(1000);
+  second++;
 
 }
 
@@ -78,18 +102,29 @@ void loop(){
        switch (moduleSw) {
          case 1:
            //Debug
-           digitalWrite(socket1FailLed, 1);
+           digitalWrite(moduleTubesSw1, 1);
+           proceedTimer = 1;
 
            break;
            
          case 2:
            
-           digitalWrite(socket2FailLed, 1);
+           digitalWrite(moduleTubesSw2, 1);
            break;
            
          case 3:
            
-           digitalWrite(socket3FailLed, 1);
+           digitalWrite(moduleTubesSw3, 1);
+           break;
+                 
+         case 4:
+           
+           digitalWrite(moduleTubesSw4, 1);
+           break;
+
+         case 5:
+           
+           digitalWrite(moduleTubesSw5, 1);
            break;
          
        }
@@ -101,7 +136,7 @@ void loop(){
        switch (moduleSw) {
          case 1:
            //Debug
-           digitalWrite(socket1FailLed, 0);
+           digitalWrite(moduleTubesSw1, 0);
            delay(5000);
            
            measureData.ID = 1;
@@ -117,14 +152,23 @@ void loop(){
            
          case 2:
            
-           digitalWrite(socket2FailLed, 1);
+           digitalWrite(moduleTubesSw2, 0);
            break;
            
          case 3:
            
-           digitalWrite(socket3FailLed, 1);
+           digitalWrite(moduleTubesSw3, 0);
            break;
-         
+                 
+         case 4:
+           
+           digitalWrite(moduleTubesSw4, 0);
+           break;
+
+         case 5:
+           
+           digitalWrite(moduleTubesSw5, 0);
+           break;         
        }
        
      }
@@ -134,6 +178,23 @@ void loop(){
     else RS485.flush();
     
    }
+   //End start action
+   
+   //Show timer start
+   while(proceedTimer){
+    
+     timer();
+    
+   }
+   //End show timer
+
+   //Measure start
+   while(measureStart){
+    
+     //Action;
+    
+   }
+   //End measure
 
 }
 
