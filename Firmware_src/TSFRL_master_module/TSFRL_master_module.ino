@@ -1,6 +1,6 @@
 /*
 Name: TSFRL_master_module.ino
-Description: Test Stand For Radio Lamps project.
+Description: Test Stand For Radio Lamps project. Master module source code.
 Author: Rustam Ojukas
 Date: 13.05.2015
 Github: https://github.com/rustamojukas/TSFRL-project
@@ -972,12 +972,9 @@ void loop() {
   //End get and save measured data
   
   while(savedDataCounter == 1){
-  
-    if (debounce(keyDown) && showMeasuredDataPos < 2) showMeasuredDataPos++;   
-    else if (debounce(keyUp) && showMeasuredDataPos != 0) showMeasuredDataPos--;
     
     //Show measured data from module 1
-    if (showMeasuredDataPos == 0){
+    if (module1ForTestOn == 1){
     
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -988,11 +985,12 @@ void loop() {
       lcd.print(module1MeasuredData[2]);
       lcd.print(" ");    
       lcd.print(module1MeasuredData[3]);
+      delay(3000);
 
     }
     
     //Show measured data from module 2
-    if (showMeasuredDataPos == 1){
+    if (module2ForTestOn == 1){
         
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -1003,11 +1001,12 @@ void loop() {
       lcd.print(module2MeasuredData[2]);
       lcd.print(" ");    
       lcd.print(module2MeasuredData[3]);
+      delay(3000);
       
     }
     
     //Show measured data from module 3
-    if (showMeasuredDataPos == 2){
+    if (module3ForTestOn == 1){
         
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -1018,6 +1017,7 @@ void loop() {
       lcd.print(module3MeasuredData[2]);
       lcd.print(" ");    
       lcd.print(module3MeasuredData[3]);
+      delay(3000);
     
     }
   

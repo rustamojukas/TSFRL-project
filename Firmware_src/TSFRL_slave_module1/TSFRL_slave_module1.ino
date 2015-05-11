@@ -1,6 +1,6 @@
 /*
 Name: TSFRL_slave_module1.ino
-Description: Test Stand For Radio Lamps project.
+Description: Test Stand For Radio Lamps project. Slave module source code.
 Author: Rustam Ojukas
 Date: 13.05.2015
 Github: https://github.com/rustamojukas/TSFRL-project
