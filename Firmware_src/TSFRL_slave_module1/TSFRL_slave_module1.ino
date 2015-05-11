@@ -1,3 +1,11 @@
+/*
+Name: TSFRL_slave_module1.ino
+Description: Test Stand For Radio Lamps project.
+Author: Rustam Ojukas
+Date: 13.05.2015
+Github: https://github.com/rustamojukas/TSFRL-project
+*/
+
 #include <SoftEasyTransfer.h> 
 #include <SoftwareSerial.h>
 
@@ -19,7 +27,6 @@
 
 SoftEasyTransfer ET; 
 
-
 struct SEND_DATA_STRUCTURE{
   
   byte ID;
@@ -35,7 +42,7 @@ SEND_DATA_STRUCTURE measureData;
 // Variables & arrays
 float moduleMeasuredData[] = {0.0, 0.0, 0.0};
 
-int second = 7190;//DEBUG
+int second = 7140;//DEBUG
 byte proceedTimer = 0;
 byte measureStart = 0;
 
@@ -106,6 +113,9 @@ void loop(){
      //Send data to master for check
      if (check == 9){
        
+       //Delay 1 second before send
+       delay(1000);
+       
        digitalWrite(DIR, 1);
      
        RS485.write(ID);
@@ -173,6 +183,9 @@ void loop(){
            measureData.measure2 = moduleMeasuredData[1];
            measureData.measure3 = moduleMeasuredData[2];
            
+           //Dely 1 second before send
+           delay(1000);
+           
            digitalWrite(DIR, 1);
      
            ET.sendData();
@@ -191,6 +204,9 @@ void loop(){
            measureData.measure1 = moduleMeasuredData[0];
            measureData.measure2 = moduleMeasuredData[1];
            measureData.measure3 = moduleMeasuredData[2];
+
+           //Delay 1 second before send
+           delay(1000);
            
            digitalWrite(DIR, 1);
      
@@ -210,7 +226,10 @@ void loop(){
            measureData.measure1 = moduleMeasuredData[0];
            measureData.measure2 = moduleMeasuredData[1];
            measureData.measure3 = moduleMeasuredData[2];
-           
+
+           //Delay 1 second before send
+           delay(1000);
+                    
            digitalWrite(DIR, 1);
      
            ET.sendData();
@@ -229,7 +248,10 @@ void loop(){
            measureData.measure1 = moduleMeasuredData[0];
            measureData.measure2 = moduleMeasuredData[1];
            measureData.measure3 = moduleMeasuredData[2];
-           
+
+           //Delay 1 second before send
+           delay(1000);
+                    
            digitalWrite(DIR, 1);
      
            ET.sendData();
@@ -248,7 +270,10 @@ void loop(){
            measureData.measure1 = moduleMeasuredData[0];
            measureData.measure2 = moduleMeasuredData[1];
            measureData.measure3 = moduleMeasuredData[2];
-           
+
+           //Delay 1 second before send
+           delay(1000);
+                    
            digitalWrite(DIR, 1);
      
            ET.sendData();

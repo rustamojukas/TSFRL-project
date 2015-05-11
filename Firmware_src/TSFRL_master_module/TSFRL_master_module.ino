@@ -1,5 +1,11 @@
 /*
+Name: TSFRL_master_module.ino
+Description: Test Stand For Radio Lamps project.
+Author: Rustam Ojukas
+Date: 13.05.2015
+Github: https://github.com/rustamojukas/TSFRL-project
 */
+
 //Include libraries
 #include <SoftEasyTransfer.h> 
 #include <SoftwareSerial.h>
@@ -79,7 +85,7 @@ byte startKeyActive = 0;
 byte startShowCounter = 0;
 
 //timer
-int second = 7190;//DEBUG
+int second = 7140;//DEBUG
 byte showTimer = 0;
 byte testEnd = 0;
 byte moduleCounter = 0;
@@ -92,7 +98,7 @@ byte module3MenuArrSize = (sizeof(module3TubesName)/sizeof(int));
 
 
 void setup() {
-//  Serial.begin(9600);
+
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
@@ -235,7 +241,7 @@ void menuModules(boolean key1, boolean key2){
     
       
     //Menu move up & down
-    if (key2 && modulesMenuPos < (modulesMenuArrSize -1)) modulesMenuPos++;   
+    if (key2 && modulesMenuPos < (modulesMenuArrSize - 1)) modulesMenuPos++;   
     else if (key1 && modulesMenuPos != 0) modulesMenuPos--;  
  
     lcd.print(modulesMenu[modulesMenuPos]);
@@ -306,7 +312,7 @@ void loop() {
     //Module 1 menu display  
     if (modulesMenuPos == 0 && selected == 1){
   
-      if (debounce(keyDown) && moduleMenuPos < (module1MenuArrSize -1)) moduleMenuPos++;   
+      if (debounce(keyDown) && moduleMenuPos < (module1MenuArrSize - 1)) moduleMenuPos++;   
       else if (debounce(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
     
       lcd.setCursor(0, 0);
@@ -411,10 +417,10 @@ void loop() {
       if (debounce(keyDown) && moduleMenuPos < (module3MenuArrSize - 1)) moduleMenuPos++;   
       else if (debounce(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
       
-      lcd.setCursor(0,0);
+      lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print(module3TubesName[moduleMenuPos]);
       
       if (module3TubesSw[moduleMenuPos] == 0) lcd.print(" ");
@@ -507,7 +513,7 @@ void loop() {
     lcd.setCursor(0, 0);
     lcd.print("****************");
     lcd.setCursor(0, 1);
-    lcd.print("Test started");
+    lcd.print("**Test started**");
     
     delay(2000);
     lcd.clear();
@@ -627,9 +633,9 @@ void loop() {
             
             lcd.clear();
             lcd.setCursor(0, 0);
-            lcd.print("Module 1");
+            lcd.print("****Module 1****");
             lcd.setCursor(0, 1);
-            lcd.print("ERROR");
+            lcd.print("*****ERROR!*****");
             delay(3000);
             startKeyActive = 0;
             module1DataSend = 0;
@@ -665,9 +671,9 @@ void loop() {
             
             lcd.clear();
             lcd.setCursor(0, 0);
-            lcd.print("Module 2");
+            lcd.print("****Module 2****");
             lcd.setCursor(0, 1);
-            lcd.print("ERROR");
+            lcd.print("*****ERROR!*****");
             delay(3000);
             startKeyActive = 0;
             module2DataSend = 0;
@@ -703,9 +709,9 @@ void loop() {
             
             lcd.clear();
             lcd.setCursor(0, 0);
-            lcd.print("Module 3");
+            lcd.print("****Module 3****");
             lcd.setCursor(0, 1);
-            lcd.print("ERROR");
+            lcd.print("*****ERROR!*****");
             delay(3000);
             startKeyActive = 0;
             module3DataSend = 0;
@@ -728,7 +734,7 @@ void loop() {
     if (module1ForTestOn){
         
       lcd.setCursor(0, 0);
-      lcd.print("Module 1 test");
+      lcd.print("*Module 1 test*");
       
       //Module 1 list
       for (int i = 0; i < module1MenuArrSize; i ++){
@@ -752,7 +758,7 @@ void loop() {
     if (module2ForTestOn){
         
       lcd.setCursor(0, 0);
-      lcd.print("Module 2 test");
+      lcd.print("*Module 2 test*");
       
       //Module 2 list
       for (int i = 0; i < module2MenuArrSize; i ++){
@@ -776,7 +782,7 @@ void loop() {
     if (module3ForTestOn){
         
       lcd.setCursor(0, 0);
-      lcd.print("Module 3 test");
+      lcd.print("*Module 3 test*");
       
       //Module 3 list
       for (int i = 0; i < module3MenuArrSize; i ++){
@@ -819,7 +825,9 @@ void loop() {
     
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("TEST END");
+    lcd.print("****************");
+    lcd.setCursor(0, 1);
+    lcd.print("***Test done!***");
     delay(3000);      
 
     //Create Module 1 data package for measure data  
@@ -908,11 +916,7 @@ void loop() {
     }
     delay(10);
     //End create Module 3 data package for measure data
-    
-    //Debug start
-    moduleCounter++;
-    moduleCounter++;
-    //Debug end
+
     savedDataCounter = moduleCounter + 1;
     testEnd = 0;
     
@@ -929,34 +933,34 @@ void loop() {
           
         module1MeasuredData[0] = float(measureData.moduleSw - 1);
         module1MeasuredData[1] = measureData.measure1;
-        module1MeasuredData[2] = 0.15; //measureData.measure2;
-        module1MeasuredData[3] = 0.18; //measureData.measure3;
+        module1MeasuredData[2] = measureData.measure2;
+        module1MeasuredData[3] = measureData.measure3;
         moduleCounter--;
         savedDataCounter--;
           
       }
       
-      if (2 == 2){
+      if (measureData.ID == 2){
           
         delay(10);
         
-        module2MeasuredData[0] = 1.0;//float(measureData.moduleSw - 1);
-        module2MeasuredData[1] = 0.21;//measureData.measure1;
-        module2MeasuredData[2] = 0.22;//measureData.measure2;
-        module2MeasuredData[3] = 0.26;//measureData.measure3;
+        module2MeasuredData[0] = float(measureData.moduleSw - 1);
+        module2MeasuredData[1] = measureData.measure1;
+        module2MeasuredData[2] = measureData.measure2;
+        module2MeasuredData[3] = measureData.measure3;
         moduleCounter--;
         savedDataCounter--;
           
       }
 
-      if (3 == 3){
+      if (measureData.ID == 3){
         
         delay(10);
         
-        module3MeasuredData[0] = 4.0;//float(measureData.moduleSw - 1);
-        module3MeasuredData[1] = 0.33;//measureData.measure1;
-        module3MeasuredData[2] = 0.39;//measureData.measure2;
-        module3MeasuredData[3] = 0.31;//measureData.measure3;
+        module3MeasuredData[0] = float(measureData.moduleSw - 1);
+        module3MeasuredData[1] = measureData.measure1;
+        module3MeasuredData[2] = measureData.measure2;
+        module3MeasuredData[3] = measureData.measure3;
         moduleCounter--;
         savedDataCounter--;
           
