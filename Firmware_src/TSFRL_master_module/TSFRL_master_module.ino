@@ -560,7 +560,7 @@ void loop() {
         if (module2TubesSw[i] == 1){
           
           //Send data package to slave 1
-          RS485.write(1);
+          RS485.write(2);
           RS485.write(9);
           RS485.write(i + 1);
           
@@ -589,7 +589,7 @@ void loop() {
         if (module3TubesSw[i] == 1){
           
           //Send data package to slave 1
-          RS485.write(1);
+          RS485.write(3);
           RS485.write(9);
           RS485.write(i + 1);
           
@@ -655,10 +655,10 @@ void loop() {
             startShowCounter--;
             
           } 
-          delay(10);
           
         }
-        //End module 2 check
+        delay(100);
+        //End module 1 check
 
         //Module 2 check
         if (id == 2){
@@ -696,9 +696,9 @@ void loop() {
             startShowCounter--;
             
           } 
-          delay(10);
-          
+                    
         }
+        delay(100);
         //End module 2 check
 
         //Module 3 check
@@ -737,9 +737,9 @@ void loop() {
             startShowCounter--;
             
           } 
-          delay(10);
           
         }
+        delay(100);
         //End module 3 check
     
     }  
