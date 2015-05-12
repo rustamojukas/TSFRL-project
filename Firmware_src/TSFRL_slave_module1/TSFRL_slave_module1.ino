@@ -52,13 +52,7 @@ const byte ID = 1;
 SoftwareSerial RS485 (rxPin, txPin);
  
 void setup(){
-Serial.begin(9600);//Debug
-        Serial.print("Start(setup();) moduleMeasuredData[0]: ");//Debug
-        Serial.println(moduleMeasuredData[0]);//Debug 
-        Serial.print("moduleMeasuredData[1]: ");//Debug
-        Serial.println(moduleMeasuredData[1]);//Debug 
-        Serial.print("moduleMeasuredData[2]: ");//Debug
-        Serial.println(moduleMeasuredData[2]);//Debug 
+ 
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
@@ -111,24 +105,17 @@ void loop(){
     delay(10);
 
     if (id == ID){
-      Serial.print("From Master ID: ");//Debug
-      Serial.println(id);//Debug
+      
       byte check = RS485.read();
       byte moduleSw = RS485.read();
       delay(10);
-      Serial.print("From Master check: ");//Debug
-      Serial.println(check);//Debug
-      Serial.print("From Master moduleSw: ");//Debug
-      Serial.println(moduleSw);//Debug
+      
       //Send data to master for check
       if (check == 9){
        
         //Delay 1 second before send
         delay(1000);
-        Serial.print("check = 9; To Master ID: ");//Debug
-        Serial.println(id);//Debug
-        Serial.print("To Master moduleSw: ");//Debug
-        Serial.println(moduleSw);//Debug      
+              
         digitalWrite(DIR, 1);
        
         RS485.write(ID);
@@ -139,10 +126,7 @@ void loop(){
       }
      
       if (check == 8){
-        Serial.print("check = 8; From Master ID: ");//Debug
-        Serial.println(id);//Debug
-        Serial.print("From Master moduleSw: ");//Debug
-        Serial.println(moduleSw);//Debug       
+               
         switch (moduleSw) {
 
           case 1:
@@ -185,10 +169,7 @@ void loop(){
       }
 
       if (check == 7){
-        Serial.print("check = 7; From Master ID: ");//Debug
-        Serial.println(id);//Debug 
-        Serial.print("From Master moduleSw: ");//Debug
-        Serial.println(moduleSw);//Debug          
+                  
         switch (moduleSw) {
 
           case 1:
@@ -201,12 +182,7 @@ void loop(){
             measureData.measure1 = moduleMeasuredData[0];
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
-        Serial.print("Send to Master measureData.measure1: ");//Debug
-        Serial.println(measureData.measure1);//Debug 
-        Serial.print("measureData.measure2: ");//Debug
-        Serial.println(measureData.measure2);//Debug 
-        Serial.print("moduleMeasuredData[2]: ");//Debug
-        Serial.println(measureData.measure3);//Debug            
+                    
             //Dely 1 second before send
             delay(1000);
            
@@ -328,23 +304,20 @@ void loop(){
   while(measureStart){
     
     moduleMeasuredData[0] = voltmeter(voltageMeasureReader1);
+    //if check!!!
     delay(100);
      
     moduleMeasuredData[1] = voltmeter(voltageMeasureReader2);
+    //if check!!!
     delay(100);
 
     moduleMeasuredData[2] = voltmeter(voltageMeasureReader3);
+    //if check!!!
     delay(100);
      
     measureStart = 0;
-        Serial.print("measureStart loop moduleMeasuredData[0]: ");//Debug
-        Serial.println(moduleMeasuredData[0]);//Debug 
-        Serial.print("moduleMeasuredData[1]: ");//Debug
-        Serial.println(moduleMeasuredData[1]);//Debug 
-        Serial.print("moduleMeasuredData[2]: ");//Debug
-        Serial.println(moduleMeasuredData[2]);//Debug      
+              
   }
   //End measure
 
 }
-

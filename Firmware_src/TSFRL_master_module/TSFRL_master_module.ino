@@ -611,6 +611,7 @@ void loop() {
   }
   //End test start, keyStart pressed
 
+  //Start send check data
   while(receiveSumm >= 1){
 
     if (RS485.available() >= 2) {
@@ -626,6 +627,8 @@ void loop() {
           
           if (module1TubesSw[moduleSw - 1]){
             
+            delay(100);
+            
             //Switch rs485 transmit
             digitalWrite(DIR, 1);
           
@@ -637,11 +640,10 @@ void loop() {
             digitalWrite(DIR, 0);
             receiveSumm--;
             startShowCounter--;
-            
+           
           } else{
             
             digitalWrite(errorLed, 1);
-            digitalWrite(testLed, 0);
             
             lcd.clear();
             lcd.setCursor(0, 0);
@@ -649,15 +651,13 @@ void loop() {
             lcd.setCursor(0, 1);
             lcd.print("*****ERROR!*****");
             delay(3000);
-            startKeyActive = 0;
-            module1DataSend = 0;
             receiveSumm--;
             startShowCounter--;
             
-          } 
+          }
+          delay(10); 
           
         }
-        delay(100);
         //End module 1 check
 
         //Module 2 check
@@ -666,6 +666,8 @@ void loop() {
           byte moduleSw = RS485.read();
           
           if (module2TubesSw[moduleSw - 1]){
+            
+            delay(100);
             
             //Switch rs485 transmit
             digitalWrite(DIR, 1);
@@ -682,7 +684,6 @@ void loop() {
           } else{
             
             digitalWrite(errorLed, 1);
-            digitalWrite(testLed, 0);
             
             lcd.clear();
             lcd.setCursor(0, 0);
@@ -690,15 +691,13 @@ void loop() {
             lcd.setCursor(0, 1);
             lcd.print("*****ERROR!*****");
             delay(3000);
-            startKeyActive = 0;
-            module2DataSend = 0;
             receiveSumm--;
             startShowCounter--;
             
-          } 
+          }
+          delay(10); 
                     
         }
-        delay(100);
         //End module 2 check
 
         //Module 3 check
@@ -707,6 +706,8 @@ void loop() {
           byte moduleSw = RS485.read();
           
           if (module3TubesSw[moduleSw - 1]){
+            
+            delay(100);
             
             //Switch rs485 transmit
             digitalWrite(DIR, 1);
@@ -723,7 +724,6 @@ void loop() {
           } else{
             
             digitalWrite(errorLed, 1);
-            digitalWrite(testLed, 0);
             
             lcd.clear();
             lcd.setCursor(0, 0);
@@ -731,20 +731,19 @@ void loop() {
             lcd.setCursor(0, 1);
             lcd.print("*****ERROR!*****");
             delay(3000);
-            startKeyActive = 0;
-            module3DataSend = 0;
             receiveSumm--;
             startShowCounter--;
             
           } 
+          delay(10);
           
         }
-        delay(100);
         //End module 3 check
     
     }  
   
   }
+  //End send check data
   
   //Show tested modules
   while(startShowCounter >= 1 && startShowCounter < 4){
@@ -876,7 +875,7 @@ void loop() {
       }
       
     }
-    delay(10);
+    delay(100);
     //End create Module 1 data package for measure data
     
     //Create Module 2 data package for measure data  
@@ -905,7 +904,7 @@ void loop() {
       }
       
     }
-    delay(10);
+    delay(100);
     //End create Module 2 data package for measure data
     
     //Create Module 3 data package for measure data  
@@ -934,7 +933,7 @@ void loop() {
       }
       
     }
-    delay(10);
+    delay(100);
     //End create Module 3 data package for measure data
 
     savedDataCounter = moduleCounter + 1;
