@@ -636,7 +636,7 @@ void loop() {
             //Switch rs485 receive
             digitalWrite(DIR, 0);
             receiveSumm--;
-            //startShowCounter = 1;
+            startShowCounter--;
             
           } else{
             
@@ -652,6 +652,7 @@ void loop() {
             startKeyActive = 0;
             module1DataSend = 0;
             receiveSumm--;
+            startShowCounter--;
             
           } 
           delay(10);
@@ -676,7 +677,7 @@ void loop() {
             //Switch rs485 receive
             digitalWrite(DIR, 0);
             receiveSumm--;
-            //startShowCounter = 1;
+            startShowCounter--;
             
           } else{
             
@@ -692,6 +693,7 @@ void loop() {
             startKeyActive = 0;
             module2DataSend = 0;
             receiveSumm--;
+            startShowCounter--;
             
           } 
           delay(10);
@@ -716,7 +718,7 @@ void loop() {
             //Switch rs485 receive
             digitalWrite(DIR, 0);
             receiveSumm--;
-            //startShowCounter = 1;
+            startShowCounter--;
             
           } else{
             
@@ -732,6 +734,7 @@ void loop() {
             startKeyActive = 0;
             module3DataSend = 0;
             receiveSumm--;
+            startShowCounter--;
             
           } 
           delay(10);
