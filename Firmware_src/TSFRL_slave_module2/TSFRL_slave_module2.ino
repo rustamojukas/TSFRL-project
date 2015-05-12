@@ -47,7 +47,7 @@ byte proceedTimer = 0;
 byte measureStart = 0;
 
 //Module ID
-const byte ID = 1;
+const byte ID = 2;
  
 SoftwareSerial RS485 (rxPin, txPin);
  
