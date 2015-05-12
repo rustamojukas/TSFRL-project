@@ -747,7 +747,7 @@ void loop() {
   }
   
   //Show tested modules
-  while(startShowCounter == 1 && startShowCounter < 4){
+  while(startShowCounter >= 1 && startShowCounter < 4){
                   
     //Displayed if Module 1 is on  
     if (module1ForTestOn){
@@ -823,6 +823,7 @@ void loop() {
     
     startShowCounter++;    
     delay(1000);
+
     if (startShowCounter == 3) showTimer = 1;
 
   }
