@@ -47,12 +47,18 @@ byte proceedTimer = 0;
 byte measureStart = 0;
 
 //Module ID
-const byte ID = 2;
+const byte ID = 1;
  
 SoftwareSerial RS485 (rxPin, txPin);
  
 void setup(){
-Serial.begin(9600);//Debug 
+Serial.begin(9600);//Debug
+        Serial.print("Start(setup();) moduleMeasuredData[0]: ");//Debug
+        Serial.println(moduleMeasuredData[0]);//Debug 
+        Serial.print("moduleMeasuredData[1]: ");//Debug
+        Serial.println(moduleMeasuredData[1]);//Debug 
+        Serial.print("moduleMeasuredData[2]: ");//Debug
+        Serial.println(moduleMeasuredData[2]);//Debug 
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
@@ -133,7 +139,7 @@ void loop(){
       }
      
       if (check == 8){
-        Serial.print("check = 9; From Master ID: ");//Debug
+        Serial.print("check = 8; From Master ID: ");//Debug
         Serial.println(id);//Debug
         Serial.print("From Master moduleSw: ");//Debug
         Serial.println(moduleSw);//Debug       
@@ -195,7 +201,12 @@ void loop(){
             measureData.measure1 = moduleMeasuredData[0];
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
-           
+        Serial.print("Send to Master measureData.measure1: ");//Debug
+        Serial.println(measureData.measure1);//Debug 
+        Serial.print("measureData.measure2: ");//Debug
+        Serial.println(measureData.measure2);//Debug 
+        Serial.print("moduleMeasuredData[2]: ");//Debug
+        Serial.println(measureData.measure3);//Debug            
             //Dely 2 second before send
             delay(2000);
            
@@ -326,7 +337,12 @@ void loop(){
     delay(100);
      
     measureStart = 0;
-     
+        Serial.print("measureStart loop moduleMeasuredData[0]: ");//Debug
+        Serial.println(moduleMeasuredData[0]);//Debug 
+        Serial.print("moduleMeasuredData[1]: ");//Debug
+        Serial.println(moduleMeasuredData[1]);//Debug 
+        Serial.print("moduleMeasuredData[2]: ");//Debug
+        Serial.println(moduleMeasuredData[2]);//Debug      
   }
   //End measure
 
