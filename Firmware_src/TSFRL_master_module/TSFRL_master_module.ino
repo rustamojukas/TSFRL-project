@@ -83,6 +83,7 @@ byte module3MeasureDataSend = 0;
 byte defaultDisplay = 0;
 byte startKeyActive = 0;
 byte startShowCounter = 0;
+byte receiveSumm = 0;
 
 //timer
 int second = 7140;//DEBUG
@@ -537,6 +538,7 @@ void loop() {
           //Switch rs485 receive
           digitalWrite(DIR, 0);
           module1DataSend = 1;
+          receiveSumm++;
           
         }
       
@@ -565,6 +567,7 @@ void loop() {
           //Switch rs485 receive
           digitalWrite(DIR, 0);
           module2DataSend = 1;
+          receiveSumm++;
           
         }
       
@@ -593,6 +596,7 @@ void loop() {
           //Switch rs485 receive
           digitalWrite(DIR, 0);
           module3DataSend = 1;
+          receiveSumm++;
           
         }
       
@@ -601,6 +605,13 @@ void loop() {
     }
     delay(10);
     //End create Module 3 data package
+
+    startShowCounter = receiveSumm + 1;
+    
+  }
+  //End test start, keyStart pressed
+
+  while(receiveSumm >= 1){
 
     if (RS485.available() >= 2) {
     
@@ -624,7 +635,8 @@ void loop() {
             
             //Switch rs485 receive
             digitalWrite(DIR, 0);
-            startShowCounter = 1;
+            receiveSumm--;
+            //startShowCounter = 1;
             
           } else{
             
@@ -639,6 +651,7 @@ void loop() {
             delay(3000);
             startKeyActive = 0;
             module1DataSend = 0;
+            receiveSumm--;
             
           } 
           delay(10);
@@ -662,7 +675,8 @@ void loop() {
             
             //Switch rs485 receive
             digitalWrite(DIR, 0);
-            startShowCounter = 1;
+            receiveSumm--;
+            //startShowCounter = 1;
             
           } else{
             
@@ -677,6 +691,7 @@ void loop() {
             delay(3000);
             startKeyActive = 0;
             module2DataSend = 0;
+            receiveSumm--;
             
           } 
           delay(10);
@@ -700,7 +715,8 @@ void loop() {
             
             //Switch rs485 receive
             digitalWrite(DIR, 0);
-            startShowCounter = 1;
+            receiveSumm--;
+            //startShowCounter = 1;
             
           } else{
             
@@ -715,6 +731,7 @@ void loop() {
             delay(3000);
             startKeyActive = 0;
             module3DataSend = 0;
+            receiveSumm--;
             
           } 
           delay(10);
@@ -722,13 +739,12 @@ void loop() {
         }
         //End module 3 check
     
-    }
-    
+    }  
+  
   }
-  //End test start, keyStart pressed
   
   //Show tested modules
-  while(startShowCounter != 0 && startShowCounter < 4){
+  while(startShowCounter == 1 && startShowCounter < 4){
                   
     //Displayed if Module 1 is on  
     if (module1ForTestOn){
