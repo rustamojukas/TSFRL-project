@@ -545,7 +545,7 @@ void loop() {
       }
       
     }
-    delay(10);
+    delay(100);
     //End create Module 1 data package 
 
     //Create Module 2 data package  
@@ -574,7 +574,7 @@ void loop() {
       }
       
     }
-    delay(10);
+    delay(100);
     //End create Module 2 data package
 
     //Create Module 3 data package  
@@ -603,7 +603,7 @@ void loop() {
       }
       
     }
-    delay(10);
+    delay(100);
     //End create Module 3 data package
 
     startShowCounter = receiveSumm + 1;

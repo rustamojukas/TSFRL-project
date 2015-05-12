@@ -52,7 +52,7 @@ const byte ID = 1;
 SoftwareSerial RS485 (rxPin, txPin);
  
 void setup(){
- 
+Serial.begin(9600);//Debug 
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
@@ -96,226 +96,239 @@ float voltmeter(int readPin){
 }
 
 void loop(){
- 
- //Start action 
- if (RS485.available() >= 2) {
+  
+  //Start action 
+  if (RS485.available() >= 2) {
    
     //Read first byte
     byte id = RS485.read();
     delay(10);
 
     if (id == ID){
-
+      Serial.print("From Master ID: ");//Debug
+      Serial.println(id);//Debug
       byte check = RS485.read();
       byte moduleSw = RS485.read();
       delay(10);
+      Serial.print("From Master check: ");//Debug
+      Serial.println(check);//Debug
+      Serial.print("From Master moduleSw: ");//Debug
+      Serial.println(moduleSw);//Debug
+      //Send data to master for check
+      if (check == 9){
+       
+        //Delay 1 second before send
+        delay(1000);
+        Serial.print("check = 9; To Master ID: ");//Debug
+        Serial.println(id);//Debug
+        Serial.print("To Master moduleSw: ");//Debug
+        Serial.println(moduleSw);//Debug      
+        digitalWrite(DIR, 1);
+       
+        RS485.write(ID);
+        RS485.write(moduleSw);
+           
+        digitalWrite(DIR, 0);
+       
+      }
      
-     //Send data to master for check
-     if (check == 9){
-       
-       //Delay 1 second before send
-       delay(1000);
-       
-       digitalWrite(DIR, 1);
-     
-       RS485.write(ID);
-       RS485.write(moduleSw);
-         
-       digitalWrite(DIR, 0);
-       
-     }
-     
-     if (check == 8){
-       
-       switch (moduleSw) {
+      if (check == 8){
+        Serial.print("check = 9; From Master ID: ");//Debug
+        Serial.println(id);//Debug
+        Serial.print("From Master moduleSw: ");//Debug
+        Serial.println(moduleSw);//Debug       
+        switch (moduleSw) {
 
-         case 1:
+          case 1:
 
-           digitalWrite(moduleTubesSw1, 1);
-           proceedTimer = 1;
-
-           break;
+            digitalWrite(moduleTubesSw1, 1);
+            proceedTimer = 1;
+  
+            break;
            
-         case 2:
+          case 2:
            
-           digitalWrite(moduleTubesSw2, 1);
-           proceedTimer = 1;
+            digitalWrite(moduleTubesSw2, 1);
+            proceedTimer = 1;
            
-           break;
+            break;
            
-         case 3:
+          case 3:
            
-           digitalWrite(moduleTubesSw3, 1);
-           proceedTimer = 1;
-           
-           break;
+            digitalWrite(moduleTubesSw3, 1);
+            proceedTimer = 1;
+             
+            break;
                  
-         case 4:
+          case 4:
            
-           digitalWrite(moduleTubesSw4, 1);
-           proceedTimer = 1;
+            digitalWrite(moduleTubesSw4, 1);
+            proceedTimer = 1;
            
-           break;
+            break;
 
-         case 5:
+          case 5:
            
-           digitalWrite(moduleTubesSw5, 1);
-           proceedTimer = 1;
+            digitalWrite(moduleTubesSw5, 1);
+            proceedTimer = 1;
            
-           break;
+            break;
          
-       }
+        }
        
-     }
+      }
 
-     if (check == 7){
-       
-       switch (moduleSw) {
+      if (check == 7){
+        Serial.print("check = 7; From Master ID: ");//Debug
+        Serial.println(id);//Debug 
+        Serial.print("From Master moduleSw: ");//Debug
+        Serial.println(moduleSw);//Debug          
+        switch (moduleSw) {
 
-         case 1:
+          case 1:
 
-           digitalWrite(moduleTubesSw1, 0);
-           delay(10);
+            digitalWrite(moduleTubesSw1, 0);
+            delay(10);
            
-           measureData.ID = ID;
-           measureData.moduleSw = moduleSw;
-           measureData.measure1 = moduleMeasuredData[0];
-           measureData.measure2 = moduleMeasuredData[1];
-           measureData.measure3 = moduleMeasuredData[2];
+            measureData.ID = ID;
+            measureData.moduleSw = moduleSw;
+            measureData.measure1 = moduleMeasuredData[0];
+            measureData.measure2 = moduleMeasuredData[1];
+            measureData.measure3 = moduleMeasuredData[2];
            
-           //Dely 1 second before send
-           delay(1000);
+            //Dely 1 second before send
+            delay(1000);
            
-           digitalWrite(DIR, 1);
+            digitalWrite(DIR, 1);
      
-           ET.sendData();
+            ET.sendData();
              
-           digitalWrite(DIR, 0);
+            digitalWrite(DIR, 0);
            
-           break;
+            break;
            
-         case 2:
+          case 2:
            
-           digitalWrite(moduleTubesSw2, 0);
-           delay(10);
+            digitalWrite(moduleTubesSw2, 0);
+            delay(10);
            
-           measureData.ID = ID;
-           measureData.moduleSw = moduleSw;
-           measureData.measure1 = moduleMeasuredData[0];
-           measureData.measure2 = moduleMeasuredData[1];
-           measureData.measure3 = moduleMeasuredData[2];
+            measureData.ID = ID;
+            measureData.moduleSw = moduleSw;
+            measureData.measure1 = moduleMeasuredData[0];
+            measureData.measure2 = moduleMeasuredData[1];
+            measureData.measure3 = moduleMeasuredData[2];
 
-           //Delay 1 second before send
-           delay(1000);
+            //Delay 1 second before send
+            delay(1000);
            
-           digitalWrite(DIR, 1);
+            digitalWrite(DIR, 1);
      
-           ET.sendData();
+            ET.sendData();
              
-           digitalWrite(DIR, 0);
+            digitalWrite(DIR, 0);
            
-           break;
+            break;
            
-         case 3:
+          case 3:
            
-           digitalWrite(moduleTubesSw3, 0);
-           delay(10);
+            digitalWrite(moduleTubesSw3, 0);
+            delay(10);
            
-           measureData.ID = ID;
-           measureData.moduleSw = moduleSw;
-           measureData.measure1 = moduleMeasuredData[0];
-           measureData.measure2 = moduleMeasuredData[1];
-           measureData.measure3 = moduleMeasuredData[2];
+            measureData.ID = ID;
+            measureData.moduleSw = moduleSw;
+            measureData.measure1 = moduleMeasuredData[0];
+            measureData.measure2 = moduleMeasuredData[1];
+            measureData.measure3 = moduleMeasuredData[2];
 
-           //Delay 1 second before send
-           delay(1000);
+            //Delay 1 second before send
+            delay(1000);
                     
-           digitalWrite(DIR, 1);
+            digitalWrite(DIR, 1);
      
-           ET.sendData();
+            ET.sendData();
              
-           digitalWrite(DIR, 0);
+            digitalWrite(DIR, 0);
            
-           break;
+            break;
                  
-         case 4:
+          case 4:
            
-           digitalWrite(moduleTubesSw4, 0);
-           delay(10);
+            digitalWrite(moduleTubesSw4, 0);
+            delay(10);
            
-           measureData.ID = ID;
-           measureData.moduleSw = moduleSw;
-           measureData.measure1 = moduleMeasuredData[0];
-           measureData.measure2 = moduleMeasuredData[1];
-           measureData.measure3 = moduleMeasuredData[2];
+            measureData.ID = ID;
+            measureData.moduleSw = moduleSw;
+            measureData.measure1 = moduleMeasuredData[0];
+            measureData.measure2 = moduleMeasuredData[1];
+            measureData.measure3 = moduleMeasuredData[2];
 
-           //Delay 1 second before send
-           delay(1000);
+            //Delay 1 second before send
+            delay(1000);
                     
-           digitalWrite(DIR, 1);
+            digitalWrite(DIR, 1);
      
-           ET.sendData();
+            ET.sendData();
              
-           digitalWrite(DIR, 0);
+            digitalWrite(DIR, 0);
            
-           break;
+            break;
 
-         case 5:
+          case 5:
            
-           digitalWrite(moduleTubesSw5, 0);
-           delay(10);
+            digitalWrite(moduleTubesSw5, 0);
+            delay(10);
            
-           measureData.ID = ID;
-           measureData.moduleSw = moduleSw;
-           measureData.measure1 = moduleMeasuredData[0];
-           measureData.measure2 = moduleMeasuredData[1];
-           measureData.measure3 = moduleMeasuredData[2];
+            measureData.ID = ID;
+            measureData.moduleSw = moduleSw;
+            measureData.measure1 = moduleMeasuredData[0];
+            measureData.measure2 = moduleMeasuredData[1];
+            measureData.measure3 = moduleMeasuredData[2];
 
-           //Delay 1 second before send
-           delay(1000);
+            //Delay 1 second before send
+            delay(1000);
                     
-           digitalWrite(DIR, 1);
+            digitalWrite(DIR, 1);
      
-           ET.sendData();
+            ET.sendData();
              
-           digitalWrite(DIR, 0);
+            digitalWrite(DIR, 0);
            
-           break;         
-       }
+            break;         
+
+        }
        
-     }
-
+      }
 
     }     
     else RS485.flush();
     
-   }
-   //End start action
+  }
+  //End start action
    
-   //Timer start
-   while(proceedTimer){
+  //Timer start
+  while(proceedTimer){
     
-     timer();
+    timer();
     
-   }
-   //End timer
+  }
+  //End timer
 
-   //Measure start
-   while(measureStart){
+  //Measure start
+  while(measureStart){
     
-     moduleMeasuredData[0] = voltmeter(voltageMeasureReader1);
-     delay(100);
+    moduleMeasuredData[0] = voltmeter(voltageMeasureReader1);
+    delay(100);
      
-     moduleMeasuredData[1] = voltmeter(voltageMeasureReader2);
-     delay(100);
+    moduleMeasuredData[1] = voltmeter(voltageMeasureReader2);
+    delay(100);
 
-     moduleMeasuredData[2] = voltmeter(voltageMeasureReader3);
-     delay(100);
+    moduleMeasuredData[2] = voltmeter(voltageMeasureReader3);
+    delay(100);
      
-     measureStart = 0;
+    measureStart = 0;
      
-   }
-   //End measure
+  }
+  //End measure
 
 }
 
