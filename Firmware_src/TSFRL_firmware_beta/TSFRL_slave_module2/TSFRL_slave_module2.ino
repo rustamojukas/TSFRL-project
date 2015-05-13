@@ -1,6 +1,7 @@
 /*
-Name: TSFRL_slave_module1.ino
+Name: TSFRL_slave_module2.ino
 Description: Test Stand For Radio Lamps project. Slave module source code.
+Required SoftEasyTransfer library ()
 Author: Rustam Ojukas
 Date: 13.05.2015
 Github: https://github.com/rustamojukas/TSFRL-project
@@ -47,7 +48,7 @@ byte proceedTimer = 0;
 byte measureStart = 0;
 
 //Module ID
-const byte ID = 1;
+const byte ID = 2;
  
 SoftwareSerial RS485 (rxPin, txPin);
  
@@ -113,8 +114,8 @@ void loop(){
       //Send data to master for check
       if (check == 9){
        
-        //Delay 1 second before send
-        delay(1000);
+        //Delay 2 second before send
+        delay(2000);
               
         digitalWrite(DIR, 1);
        
@@ -183,8 +184,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
                     
-            //Dely 1 second before send
-            delay(1000);
+            //Dely 2 second before send
+            delay(2000);
            
             digitalWrite(DIR, 1);
      
@@ -205,8 +206,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay 2 second before send
+            delay(2000);
            
             digitalWrite(DIR, 1);
      
@@ -227,8 +228,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay 2 second before send
+            delay(2000);
                     
             digitalWrite(DIR, 1);
      
@@ -249,8 +250,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay 2 second before send
+            delay(2000);
                     
             digitalWrite(DIR, 1);
      
@@ -271,8 +272,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay 2 second before send
+            delay(2000);
                     
             digitalWrite(DIR, 1);
      

@@ -1,6 +1,7 @@
 /*
 Name: TSFRL_master_module.ino
 Description: Test Stand For Radio Lamps project. Master module source code.
+Required SoftEasyTransfer library ()
 Author: Rustam Ojukas
 Date: 13.05.2015
 Github: https://github.com/rustamojukas/TSFRL-project
