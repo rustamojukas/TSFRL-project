@@ -1,10 +1,10 @@
 /*
-Name: TSFRL_slave_module3.ino
-Description: Test Stand For Radio Lamps project. Slave module source code.
-Required SoftEasyTransfer library ()
-Author: Rustam Ojukas
-Date: 13.05.2015
-Github: https://github.com/rustamojukas/TSFRL-project
+*  Name: TSFRL_slave_module3.ino
+*  Description: Test Stand For Radio Lamps project. Slave module source code.
+*  Required: SoftEasyTransfer library (https://github.com/madsci1016/Arduino-EasyTransfer).
+*  Author: Rustam Ojukas
+*  Date: 13.05.2015
+*  Github: https://github.com/rustamojukas/TSFRL-project
 */
 
 #include <SoftEasyTransfer.h> 
