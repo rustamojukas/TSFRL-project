@@ -1,5 +1,5 @@
 /*
-*  Name: TSFRL_slave_module1.ino
+*  Name: TSFRL_slave_module.ino
 *  Description: Test Stand For Radio Lamps project. Slave module source code.
 *  Required: SoftEasyTransfer library (https://github.com/madsci1016/Arduino-EasyTransfer).
 *  Author: Rustam Ojukas
@@ -11,6 +11,8 @@
 #include <SoftwareSerial.h>
 
 // Constants
+const byte ID = 1;//Module ID
+
 #define socket1FailLed 2
 #define socket2FailLed 3
 #define socket3FailLed 4
@@ -44,15 +46,15 @@ SEND_DATA_STRUCTURE measureData;
 // Variables & arrays
 float moduleMeasuredData[] = {0.0, 0.0, 0.0};
 
-int second = 120;//DEBUG
+int second = 7200;// 2 hours = 7200 seconds
+float correction = 4.1;
+int sendDelay = ID * 1000;
 byte proceedTimer = 0;
 byte measureStart = 0;
-
-//Module ID
-const byte ID = 1;
  
 SoftwareSerial RS485 (rxPin, txPin);
- 
+
+//Setup 
 void setup(){
  
   RS485.begin(9600);
@@ -61,11 +63,8 @@ void setup(){
 
 }
 
+//Functions start
 void timer(){
-
-  int currentHour = (second/60)/60;
-  int currentMinute = (second/60)%60;
-  int currentSecond = second%60;
 
   if (second == 0){
     
@@ -85,7 +84,7 @@ float voltmeter(int readPin){
   
   for (byte i = 0; i < 3; i++){
     
-    float volts = ((analogRead(readPin)-4.1) * 5.0) / 1023.0;
+    float volts = ((analogRead(readPin)-correction) * 5.0) / 1023.0;
 
     result += volts;
     delay(100);
@@ -95,7 +94,9 @@ float voltmeter(int readPin){
   return result/3.0;
   
 }
+//End functions
 
+//Loop
 void loop(){
   
   //Start action 
@@ -114,8 +115,8 @@ void loop(){
       //Send data to master for check
       if (check == 9){
        
-        //Delay 1 second before send
-        delay(1000);
+        //Delay before send
+        delay(sendDelay);
               
         digitalWrite(DIR, 1);
        
@@ -184,8 +185,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
                     
-            //Dely 1 second before send
-            delay(1000);
+            //Dely before send
+            delay(sendDelay);
            
             digitalWrite(DIR, 1);
      
@@ -206,8 +207,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay before send
+            delay(sendDelay);
            
             digitalWrite(DIR, 1);
      
@@ -228,8 +229,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay before send
+            delay(sendDelay);
                     
             digitalWrite(DIR, 1);
      
@@ -250,8 +251,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay before send
+            delay(sendDelay);
                     
             digitalWrite(DIR, 1);
      
@@ -272,8 +273,8 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
 
-            //Delay 1 second before send
-            delay(1000);
+            //Delay before send
+            delay(sendDelay);
                     
             digitalWrite(DIR, 1);
      

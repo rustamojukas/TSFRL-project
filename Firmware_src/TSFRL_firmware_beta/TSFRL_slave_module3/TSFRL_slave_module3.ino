@@ -11,9 +11,10 @@
 #include <SoftwareSerial.h>
 
 // Constants
-#define socket1FailLed 3
-#define socket2FailLed 4
-#define socket3FailLed 5
+#define socket1FailLed 2
+#define socket2FailLed 3
+#define socket3FailLed 4
+#define moduleTubesSw0 5
 #define moduleTubesSw1 6
 #define moduleTubesSw2 7
 #define moduleTubesSw3 8
@@ -43,7 +44,7 @@ SEND_DATA_STRUCTURE measureData;
 // Variables & arrays
 float moduleMeasuredData[] = {0.0, 0.0, 0.0};
 
-int second = 7140;//DEBUG
+int second = 120;//DEBUG
 byte proceedTimer = 0;
 byte measureStart = 0;
 
@@ -66,8 +67,7 @@ void timer(){
   int currentMinute = (second/60)%60;
   int currentSecond = second%60;
   
-  //Timer 2:00:00 is stop
-  if (currentHour == 2 && currentMinute == 0 && currentSecond == 0){
+  if (second == 0){
     
     proceedTimer = 0;
     measureStart = 1;
@@ -75,7 +75,7 @@ void timer(){
   }
 
   delay(1000);
-  second++;
+  second--;
 
 }
 

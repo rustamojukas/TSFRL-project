@@ -87,7 +87,7 @@ byte startShowCounter = 0;
 byte receiveSumm = 0;
 
 //timer
-int second = 7140;//DEBUG
+int second = 120;//DEBUG
 byte showTimer = 0;
 byte testEnd = 0;
 byte moduleCounter = 0;
@@ -137,8 +137,7 @@ void timer(){
   int currentMinute = (second/60)%60;
   int currentSecond = second%60;
   
-  //Timer 2:00:00 is stop
-  if (currentHour == 2 && currentMinute == 0 && currentSecond == 0){
+  if (second == 0){
     
     testEnd = 1;
     showTimer = 0;
@@ -169,7 +168,7 @@ void timer(){
   }else lcd.print(currentSecond);
 
   delay(1000);
-  second++;
+  second--;
 
 }
 
