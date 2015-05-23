@@ -1,2 +1,2 @@
-# TSFRL-project
-Test Stand For Radio Lamps project
+# TSFVT-project
+Test Stand For Vacuum Tube project
