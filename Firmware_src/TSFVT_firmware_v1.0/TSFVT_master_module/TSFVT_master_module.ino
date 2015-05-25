@@ -1,10 +1,10 @@
 /*
-*  Name: TSFRL_master_module.ino
-*  Description: Test Stand For Radio Lamps project. Slave module source code.
+*  Name: TSFVT_master_module.ino
+*  Description: Test Stand For Vacuum Tube project. Slave module source code.
 *  Required: SoftEasyTransfer library (https://github.com/madsci1016/Arduino-EasyTransfer).
 *  Author: Rustam Ojukas
 *  Date: 13.05.2015
-*  Github: https://github.com/rustamojukas/TSFRL-project
+*  Github: https://github.com/rustamojukas/TSFVT-project
 */
 
 //Include libraries
@@ -40,9 +40,10 @@ struct RECEIVE_DATA_STRUCTURE{
   
   byte ID;
   byte moduleSw;
-  float measure1;
-  float measure2;
-  float measure3;
+  int measure1;
+  int measure2;
+  int measure3;
+  int measure4;
 
 };
 
@@ -58,9 +59,9 @@ byte module1TubesSw[] = {0, 0, 0, 0, 0};
 byte module2TubesSw[] = {0, 0, 0, 0, 0};
 byte module3TubesSw[] = {0, 0, 0, 0, 0};
 
-float module1MeasuredData[] = {0.0, 0.0, 0.0, 0.0};
-float module2MeasuredData[] = {0.0, 0.0, 0.0, 0.0};
-float module3MeasuredData[] = {0.0, 0.0, 0.0, 0.0};
+int module1MeasuredData[] = {0, 0, 0, 0, 0};
+int module2MeasuredData[] = {0, 0, 0, 0, 0};
+int module3MeasuredData[] = {0, 0, 0, 0, 0};
 
 byte modulesMenuPos = 0;
 byte moduleMenuPos = 0;
@@ -635,6 +636,8 @@ void loop() {
             receiveSumm--;
             startShowCounter--;
             
+            digitalWrite(errorLed, 0);
+            
           }
           delay(10); 
           
@@ -675,6 +678,8 @@ void loop() {
             receiveSumm--;
             startShowCounter--;
             
+            digitalWrite(errorLed, 0);
+            
           }
           delay(10); 
                     
@@ -714,6 +719,8 @@ void loop() {
             delay(3000);
             receiveSumm--;
             startShowCounter--;
+            
+            digitalWrite(errorLed, 0);
             
           } 
           delay(10);
@@ -931,10 +938,11 @@ void loop() {
         
         delay(10);
           
-        module1MeasuredData[0] = float(measureData.moduleSw - 1);
+        module1MeasuredData[0] = measureData.moduleSw - 1;
         module1MeasuredData[1] = measureData.measure1;
         module1MeasuredData[2] = measureData.measure2;
         module1MeasuredData[3] = measureData.measure3;
+        module1MeasuredData[4] = measureData.measure4;
         moduleCounter--;
         savedDataCounter--;
           
@@ -944,10 +952,11 @@ void loop() {
           
         delay(10);
         
-        module2MeasuredData[0] = float(measureData.moduleSw - 1);
+        module2MeasuredData[0] = measureData.moduleSw - 1;
         module2MeasuredData[1] = measureData.measure1;
         module2MeasuredData[2] = measureData.measure2;
         module2MeasuredData[3] = measureData.measure3;
+        module2MeasuredData[4] = measureData.measure4;
         moduleCounter--;
         savedDataCounter--;
           
@@ -957,10 +966,11 @@ void loop() {
         
         delay(10);
         
-        module3MeasuredData[0] = float(measureData.moduleSw - 1);
+        module3MeasuredData[0] = measureData.moduleSw - 1;
         module3MeasuredData[1] = measureData.measure1;
         module3MeasuredData[2] = measureData.measure2;
         module3MeasuredData[3] = measureData.measure3;
+        module3MeasuredData[4] = measureData.measure4;
         moduleCounter--;
         savedDataCounter--;
           
@@ -979,13 +989,16 @@ void loop() {
       //if check!!!
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print(module1TubesName[int(module1MeasuredData[0])]);
+      lcd.print(module1TubesName[module1MeasuredData[0]]);
       lcd.setCursor(0, 1);
       lcd.print(module1MeasuredData[1]);
       lcd.print(" ");
-      lcd.print(module1MeasuredData[2]);
-      lcd.print(" ");    
+      lcd.print(module1MeasuredData[2]);    
+      delay(3000);
+      lcd.print("                ");
       lcd.print(module1MeasuredData[3]);
+      lcd.print(" ");
+      lcd.print(module1MeasuredData[4]);
       delay(3000);
 
     }
@@ -996,13 +1009,16 @@ void loop() {
       //if check!!!  
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print(module2TubesName[int(module2MeasuredData[0])]);
+      lcd.print(module2TubesName[module2MeasuredData[0]]);
       lcd.setCursor(0, 1);
       lcd.print(module2MeasuredData[1]);
       lcd.print(" ");
-      lcd.print(module2MeasuredData[2]);
-      lcd.print(" ");    
+      lcd.print(module2MeasuredData[2]);    
+      delay(3000);
+      lcd.print("                ");
       lcd.print(module2MeasuredData[3]);
+      lcd.print(" ");
+      lcd.print(module2MeasuredData[4]);
       delay(3000);
       
     }
@@ -1013,13 +1029,16 @@ void loop() {
       //if check!!!  
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print(module3TubesName[int(module3MeasuredData[0])]);
+      lcd.print(module3TubesName[module3MeasuredData[0]]);
       lcd.setCursor(0, 1);
       lcd.print(module3MeasuredData[1]);
       lcd.print(" ");
-      lcd.print(module3MeasuredData[2]);
-      lcd.print(" ");    
+      lcd.print(module3MeasuredData[2]);    
+      delay(3000);
+      lcd.print("                ");
       lcd.print(module3MeasuredData[3]);
+      lcd.print(" ");
+      lcd.print(module3MeasuredData[4]);
       delay(3000);
     
     }
