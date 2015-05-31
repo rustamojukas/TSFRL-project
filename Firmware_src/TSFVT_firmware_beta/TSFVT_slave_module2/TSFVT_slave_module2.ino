@@ -1,19 +1,22 @@
 /*
-*  Name: TSFRL_slave_module2.ino
-*  Description: Test Stand For Radio Lamps project. Slave module source code.
+*  Name: TSFVT_slave_module.ino
+*  Description: Test Stand For Vacuum Tube project. Slave module source code.
 *  Required: SoftEasyTransfer library (https://github.com/madsci1016/Arduino-EasyTransfer).
 *  Author: Rustam Ojukas
 *  Date: 13.05.2015
-*  Github: https://github.com/rustamojukas/TSFRL-project
+*  Github: https://github.com/rustamojukas/TSFVT-project
 */
 
 #include <SoftEasyTransfer.h> 
 #include <SoftwareSerial.h>
 
 // Constants
+const byte ID = 2;//Module ID
+
 #define socket1FailLed 2
 #define socket2FailLed 3
 #define socket3FailLed 4
+#define socket4FailLed A7
 #define moduleTubesSw0 5
 #define moduleTubesSw1 6
 #define moduleTubesSw2 7
@@ -26,6 +29,7 @@
 #define voltageMeasureReader1 A1
 #define voltageMeasureReader2 A2
 #define voltageMeasureReader3 A3
+#define voltageMeasureReader4 A4
 
 SoftEasyTransfer ET; 
 
@@ -33,39 +37,56 @@ struct SEND_DATA_STRUCTURE{
   
   byte ID;
   byte moduleSw;
-  float measure1;
-  float measure2;
-  float measure3;
+  int measure1;
+  int measure2;
+  int measure3;
+  int measure4;
+  byte errorSw;
   
  };
  
 SEND_DATA_STRUCTURE measureData;
 
 // Variables & arrays
-float moduleMeasuredData[] = {0.0, 0.0, 0.0};
+int moduleMeasuredData[] = {0, 0, 0, 0};
 
-int second = 120;//DEBUG
+int second = 7200;// 2 hours = 7200 seconds
+float correction = 4.1;
+int sendDelay = ID * 1000;
 byte proceedTimer = 0;
 byte measureStart = 0;
-
-//Module ID
-const byte ID = 2;
  
 SoftwareSerial RS485 (rxPin, txPin);
- 
+
+//Setup 
 void setup(){
  
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
+  
+  pinMode(socket4FailLed, OUTPUT);
+  
+  delay(1500);
+  
+  digitalWrite(socket1FailLed, 1);
+  digitalWrite(socket2FailLed, 1);
+  digitalWrite(socket3FailLed, 1);
+  digitalWrite(socket4FailLed, 1);
+  digitalWrite(DIR, 1);
+  
+  delay(2500);
+
+  digitalWrite(socket1FailLed, 0);
+  digitalWrite(socket2FailLed, 0);
+  digitalWrite(socket3FailLed, 0);
+  digitalWrite(socket4FailLed, 0);
+  digitalWrite(DIR, 0);
 
 }
 
+//Functions start
 void timer(){
-
-  int currentHour = (second/60)/60;
-  int currentMinute = (second/60)%60;
-  int currentSecond = second%60;
 
   if (second == 0){
     
@@ -85,7 +106,7 @@ float voltmeter(int readPin){
   
   for (byte i = 0; i < 3; i++){
     
-    float volts = ((analogRead(readPin)-4.1) * 5.0) / 1023.0;
+    float volts = ((analogRead(readPin)-correction) * 5.0) / 1023.0;
 
     result += volts;
     delay(100);
@@ -95,7 +116,9 @@ float voltmeter(int readPin){
   return result/3.0;
   
 }
+//End functions
 
+//Loop
 void loop(){
   
   //Start action 
@@ -114,8 +137,8 @@ void loop(){
       //Send data to master for check
       if (check == 9){
        
-        //Delay 2 second before send
-        delay(2000);
+        //Delay before send
+        delay(sendDelay);
               
         digitalWrite(DIR, 1);
        
@@ -183,9 +206,10 @@ void loop(){
             measureData.measure1 = moduleMeasuredData[0];
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
+            measureData.measure4 = moduleMeasuredData[3];
                     
-            //Dely 2 second before send
-            delay(2000);
+            //Dely before send
+            delay(sendDelay);
            
             digitalWrite(DIR, 1);
      
@@ -205,9 +229,10 @@ void loop(){
             measureData.measure1 = moduleMeasuredData[0];
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
+            measureData.measure4 = moduleMeasuredData[3];
 
-            //Delay 2 second before send
-            delay(2000);
+            //Delay before send
+            delay(sendDelay);
            
             digitalWrite(DIR, 1);
      
@@ -227,9 +252,10 @@ void loop(){
             measureData.measure1 = moduleMeasuredData[0];
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
+            measureData.measure4 = moduleMeasuredData[3];
 
-            //Delay 2 second before send
-            delay(2000);
+            //Delay before send
+            delay(sendDelay);
                     
             digitalWrite(DIR, 1);
      
@@ -249,9 +275,10 @@ void loop(){
             measureData.measure1 = moduleMeasuredData[0];
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
+            measureData.measure4 = moduleMeasuredData[3];
 
-            //Delay 2 second before send
-            delay(2000);
+            //Delay before send
+            delay(sendDelay);
                     
             digitalWrite(DIR, 1);
      
@@ -271,9 +298,10 @@ void loop(){
             measureData.measure1 = moduleMeasuredData[0];
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
+            measureData.measure4 = moduleMeasuredData[3];
 
-            //Delay 2 second before send
-            delay(2000);
+            //Delay before send
+            delay(sendDelay);
                     
             digitalWrite(DIR, 1);
      
@@ -304,15 +332,19 @@ void loop(){
   //Measure start
   while(measureStart){
     
-    moduleMeasuredData[0] = voltmeter(voltageMeasureReader1);
+    moduleMeasuredData[0] = int(voltmeter(voltageMeasureReader1) * 100.0);
     //if check!!!
     delay(100);
      
-    moduleMeasuredData[1] = voltmeter(voltageMeasureReader2);
+    moduleMeasuredData[1] = int(voltmeter(voltageMeasureReader2) * 100.0);
     //if check!!!
     delay(100);
 
-    moduleMeasuredData[2] = voltmeter(voltageMeasureReader3);
+    moduleMeasuredData[2] = int(voltmeter(voltageMeasureReader3) * 100.0);
+    //if check!!!
+    delay(100);
+
+    moduleMeasuredData[3] = int(voltmeter(voltageMeasureReader4) * 100.0);
     //if check!!!
     delay(100);
      
