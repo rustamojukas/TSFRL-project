@@ -14,7 +14,6 @@
 #include <LiquidCrystal_I2C.h>
 
 // Constants
-
 #define keyStart 3
 #define keyDown 4
 #define keyBack 5
