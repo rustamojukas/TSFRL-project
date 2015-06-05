@@ -1,6 +1,6 @@
 # TSFVT-project
 Test Stand For Vacuum Tube project
-## Projact state
+## Project state
 In progress
 ## Vacuum Tube support
 * 6AH6
