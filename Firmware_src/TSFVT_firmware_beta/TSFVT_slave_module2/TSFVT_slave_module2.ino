@@ -13,10 +13,10 @@
 // Constants
 const byte ID = 2;//Module ID
 
-#define socket1FailLed 2
-#define socket2FailLed 3
-#define socket3FailLed 4
-#define socket4FailLed A7
+#define socket1FailLed A7
+#define socket2FailLed 2
+#define socket3FailLed 3
+#define socket4FailLed 4
 #define moduleTubesSw0 5
 #define moduleTubesSw1 6
 #define moduleTubesSw2 7
