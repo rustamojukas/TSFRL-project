@@ -187,10 +187,9 @@ void timer(){
 
 }
 
-boolean selectedModule(){
+byte selectedModule(){
 
   byte selectCounter = 0;
-  boolean selStatus = false;
   
     //Module 1
     for (byte i = 0; i < module1MenuArrSize; i ++){
@@ -231,8 +230,7 @@ boolean selectedModule(){
     }
     delay(10);
     
-    if (selectCounter > 0) selStatus = true;
-    return selStatus;
+    return selectCounter;
 
 }
 
@@ -268,12 +266,28 @@ void loop() {
     // keyStart actions
     if (digitalRead(keyStart)){
       
-      if (selectedModule()){
+      if (selectedModule() > 0){
+        
+        //Check how many modules is selected
+        if (selectedModule() == 1){
       
-        startKeyActive = 1;
+          startKeyActive = 1;
       
-        //Switch on testLed
-        digitalWrite(testLed, 1);
+          //Switch on testLed
+          digitalWrite(testLed, 1);
+          
+        }else{
+        
+          //Error message: Select more 1 module is not allowed
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Select > 1module");
+          lcd.setCursor(0, 1);
+          lcd.print("is NOT allowed");
+          delay(2000);
+          defaultDisplay = 1;          
+          
+        }
       
       }else{
       
@@ -957,6 +971,7 @@ void loop() {
         module1MeasuredData[2] = measureData.measure2;
         module1MeasuredData[3] = measureData.measure3;
         module1MeasuredData[4] = measureData.measure4;
+        module1MeasuredData[5] = measureData.errorSw;
         moduleCounter--;
         savedDataCounter--;
           
@@ -971,6 +986,7 @@ void loop() {
         module2MeasuredData[2] = measureData.measure2;
         module2MeasuredData[3] = measureData.measure3;
         module2MeasuredData[4] = measureData.measure4;
+        module2MeasuredData[5] = measureData.errorSw;
         moduleCounter--;
         savedDataCounter--;
           
@@ -985,6 +1001,7 @@ void loop() {
         module3MeasuredData[2] = measureData.measure2;
         module3MeasuredData[3] = measureData.measure3;
         module3MeasuredData[4] = measureData.measure4;
+        module3MeasuredData[5] = measureData.errorSw;
         moduleCounter--;
         savedDataCounter--;
           
@@ -997,10 +1014,12 @@ void loop() {
   
   while(savedDataCounter == 1){
     
+    //if check
+    if (module1MeasuredData[5] || module2MeasuredData[5] || module3MeasuredData[5]) digitalWrite(errorLed, 1);
+    
     //Show measured data from module 1
     if (module1ForTestOn == 1){
     
-      //if check!!!
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(module1TubesName[module1MeasuredData[0]]);
@@ -1019,8 +1038,7 @@ void loop() {
     
     //Show measured data from module 2
     if (module2ForTestOn == 1){
-      
-      //if check!!!  
+        
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(module2TubesName[module2MeasuredData[0]]);
@@ -1039,8 +1057,7 @@ void loop() {
     
     //Show measured data from module 3
     if (module3ForTestOn == 1){
-      
-      //if check!!!  
+        
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(module3TubesName[module3MeasuredData[0]]);
