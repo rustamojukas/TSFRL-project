@@ -11,7 +11,7 @@
 #include <SoftwareSerial.h>
 
 // Constants
-const byte ID = 2;//Module ID
+const byte ID = 1;//Module ID
 
 #define socket1FailLed A7
 #define socket2FailLed 2
@@ -50,16 +50,20 @@ SEND_DATA_STRUCTURE measureData;
 // Variables & arrays
 int moduleMeasuredData[] = {0, 0, 0, 0};
 
-int second = 7200;// 2 hours = 7200 seconds
+int second = 120;// 2 hours = 7200 seconds
 float correction = 4.1;
 int sendDelay = ID * 1000;
 byte proceedTimer = 0;
 byte measureStart = 0;
+byte errorSwActive = 0;
+byte moduleSwValue = 0;
  
 SoftwareSerial RS485 (rxPin, txPin);
 
 //Setup 
 void setup(){
+  
+  digitalWrite(moduleTubesSw0, 1);
  
   RS485.begin(9600);
   
@@ -155,37 +159,11 @@ void loop(){
 
           case 1:
 
+            digitalWrite(moduleTubesSw0, 0);
             digitalWrite(moduleTubesSw1, 1);
+            moduleSwValue = moduleSw;
             proceedTimer = 1;
   
-            break;
-           
-          case 2:
-           
-            digitalWrite(moduleTubesSw2, 1);
-            proceedTimer = 1;
-           
-            break;
-           
-          case 3:
-           
-            digitalWrite(moduleTubesSw3, 1);
-            proceedTimer = 1;
-             
-            break;
-                 
-          case 4:
-           
-            digitalWrite(moduleTubesSw4, 1);
-            proceedTimer = 1;
-           
-            break;
-
-          case 5:
-           
-            digitalWrite(moduleTubesSw5, 1);
-            proceedTimer = 1;
-           
             break;
          
         }
@@ -207,6 +185,7 @@ void loop(){
             measureData.measure2 = moduleMeasuredData[1];
             measureData.measure3 = moduleMeasuredData[2];
             measureData.measure4 = moduleMeasuredData[3];
+            measureData.errorSw = errorSwActive;
                     
             //Dely before send
             delay(sendDelay);
@@ -218,98 +197,6 @@ void loop(){
             digitalWrite(DIR, 0);
            
             break;
-           
-          case 2:
-           
-            digitalWrite(moduleTubesSw2, 0);
-            delay(10);
-           
-            measureData.ID = ID;
-            measureData.moduleSw = moduleSw;
-            measureData.measure1 = moduleMeasuredData[0];
-            measureData.measure2 = moduleMeasuredData[1];
-            measureData.measure3 = moduleMeasuredData[2];
-            measureData.measure4 = moduleMeasuredData[3];
-
-            //Delay before send
-            delay(sendDelay);
-           
-            digitalWrite(DIR, 1);
-     
-            ET.sendData();
-             
-            digitalWrite(DIR, 0);
-           
-            break;
-           
-          case 3:
-           
-            digitalWrite(moduleTubesSw3, 0);
-            delay(10);
-           
-            measureData.ID = ID;
-            measureData.moduleSw = moduleSw;
-            measureData.measure1 = moduleMeasuredData[0];
-            measureData.measure2 = moduleMeasuredData[1];
-            measureData.measure3 = moduleMeasuredData[2];
-            measureData.measure4 = moduleMeasuredData[3];
-
-            //Delay before send
-            delay(sendDelay);
-                    
-            digitalWrite(DIR, 1);
-     
-            ET.sendData();
-             
-            digitalWrite(DIR, 0);
-           
-            break;
-                 
-          case 4:
-           
-            digitalWrite(moduleTubesSw4, 0);
-            delay(10);
-           
-            measureData.ID = ID;
-            measureData.moduleSw = moduleSw;
-            measureData.measure1 = moduleMeasuredData[0];
-            measureData.measure2 = moduleMeasuredData[1];
-            measureData.measure3 = moduleMeasuredData[2];
-            measureData.measure4 = moduleMeasuredData[3];
-
-            //Delay before send
-            delay(sendDelay);
-                    
-            digitalWrite(DIR, 1);
-     
-            ET.sendData();
-             
-            digitalWrite(DIR, 0);
-           
-            break;
-
-          case 5:
-           
-            digitalWrite(moduleTubesSw5, 0);
-            delay(10);
-           
-            measureData.ID = ID;
-            measureData.moduleSw = moduleSw;
-            measureData.measure1 = moduleMeasuredData[0];
-            measureData.measure2 = moduleMeasuredData[1];
-            measureData.measure3 = moduleMeasuredData[2];
-            measureData.measure4 = moduleMeasuredData[3];
-
-            //Delay before send
-            delay(sendDelay);
-                    
-            digitalWrite(DIR, 1);
-     
-            ET.sendData();
-             
-            digitalWrite(DIR, 0);
-           
-            break;         
 
         }
        
@@ -332,20 +219,84 @@ void loop(){
   //Measure start
   while(measureStart){
     
+    //MeasureReader1 in process
     moduleMeasuredData[0] = int(voltmeter(voltageMeasureReader1) * 100.0);
-    //if check!!!
-    delay(100);
+
+    switch (moduleSwValue) {
+
+      case 1:
+      
+        if (moduleMeasuredData[0] < 42 || moduleMeasuredData[0] > 53){
+        
+          digitalWrite(socket1FailLed, 1);
+          errorSwActive = 1;
+        
+        }
+        
+        break;
      
+    }
+    
+    delay(100);
+    
+    //MeasureReader2 in process
     moduleMeasuredData[1] = int(voltmeter(voltageMeasureReader2) * 100.0);
-    //if check!!!
-    delay(100);
+     
+    switch (moduleSwValue) {
 
+      case 1:
+      
+        if (moduleMeasuredData[1] < 42 || moduleMeasuredData[1] > 53){
+        
+          digitalWrite(socket2FailLed, 1);
+          errorSwActive = 1;
+        
+        }
+        
+        break;
+     
+    }
+
+    delay(100);
+    
+    //MeasureReader3 in process
     moduleMeasuredData[2] = int(voltmeter(voltageMeasureReader3) * 100.0);
-    //if check!!!
+
+    switch (moduleSwValue) {
+
+      case 1:
+      
+        if (moduleMeasuredData[2] < 42 || moduleMeasuredData[2] > 53){
+        
+          digitalWrite(socket3FailLed, 1);
+          errorSwActive = 1;
+        
+        }
+        
+        break;
+     
+    }
+
     delay(100);
 
+    //MeasureReader4 in process
     moduleMeasuredData[3] = int(voltmeter(voltageMeasureReader4) * 100.0);
-    //if check!!!
+
+    switch (moduleSwValue) {
+
+      case 1:
+      
+        if (moduleMeasuredData[3] < 42 || moduleMeasuredData[3] > 53){
+        
+          digitalWrite(socket4FailLed, 1);
+          errorSwActive = 1;
+        
+        }
+        
+        break;
+     
+    }
+
     delay(100);
      
     measureStart = 0;
