@@ -13,7 +13,7 @@
 // Constants
 const byte ID = 1;//Module ID
 
-#define socket1FailLed A7
+#define socket1FailLed A0
 #define socket2FailLed 2
 #define socket3FailLed 3
 #define socket4FailLed 4
@@ -37,10 +37,10 @@ struct SEND_DATA_STRUCTURE{
   
   byte ID;
   byte moduleSw;
-  int measure1;
-  int measure2;
-  int measure3;
-  int measure4;
+  float measure1;
+  float measure2;
+  float measure3;
+  float measure4;
   byte errorSw;
   
  };
@@ -48,7 +48,7 @@ struct SEND_DATA_STRUCTURE{
 SEND_DATA_STRUCTURE measureData;
 
 // Variables & arrays
-int moduleMeasuredData[] = {0, 0, 0, 0};
+float moduleMeasuredData[] = {0.0, 0.0, 0.0, 0.0};
 
 int second = 120;// 2 hours = 7200 seconds
 float correction = 4.1;
@@ -62,14 +62,26 @@ SoftwareSerial RS485 (rxPin, txPin);
 
 //Setup 
 void setup(){
+  //DEBUG
+  Serial.begin(9600);
+  Serial.println("-----------------------Slave setup() Start----------------------");
   
-  digitalWrite(moduleTubesSw0, 1);
+  pinMode(moduleTubesSw0, OUTPUT);
+  pinMode(moduleTubesSw1, OUTPUT);
+  pinMode(moduleTubesSw2, OUTPUT);
+  pinMode(moduleTubesSw3, OUTPUT);
+  pinMode(moduleTubesSw4, OUTPUT);
+  pinMode(moduleTubesSw5, OUTPUT);
+  pinMode(socket1FailLed, OUTPUT);
+  pinMode(socket2FailLed, OUTPUT);
+  pinMode(socket3FailLed, OUTPUT);
+  pinMode(socket4FailLed, OUTPUT);
+  
+  //digitalWrite(moduleTubesSw0, 1);
  
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
-  
-  pinMode(socket4FailLed, OUTPUT);
   
   delay(1500);
   
@@ -159,8 +171,8 @@ void loop(){
 
           case 1:
 
-            digitalWrite(moduleTubesSw0, 0);
-            digitalWrite(moduleTubesSw1, 1);
+            //digitalWrite(moduleTubesSw0, 0);
+            //digitalWrite(moduleTubesSw1, 1);
             moduleSwValue = moduleSw;
             proceedTimer = 1;
   
@@ -176,9 +188,10 @@ void loop(){
 
           case 1:
 
-            digitalWrite(moduleTubesSw1, 0);
-            delay(10);
-           
+            //digitalWrite(moduleTubesSw1, 0);
+            //delay(10);
+    //DEBUG
+    Serial.println("-----------------------Send data to master----------------------");           
             measureData.ID = ID;
             measureData.moduleSw = moduleSw;
             measureData.measure1 = moduleMeasuredData[0];
@@ -210,6 +223,8 @@ void loop(){
    
   //Timer start
   while(proceedTimer){
+    //DEBUG
+    Serial.println("-----------------------Timer Start----------------------");
     
     timer();
     
@@ -218,15 +233,22 @@ void loop(){
 
   //Measure start
   while(measureStart){
+    //DEBUG
+    Serial.println("-----------------------Measure Start----------------------");
     
     //MeasureReader1 in process
-    moduleMeasuredData[0] = int(voltmeter(voltageMeasureReader1) * 100.0);
-
+    moduleMeasuredData[0] = (voltmeter(voltageMeasureReader1) + 0.04) * 100.0;
+    //DEBUG
+    Serial.println("-----------------------Reader1----------------------");
+    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println("-----------------------Array[0]----------------------");
+    Serial.println(moduleMeasuredData[0]);
+    Serial.println("-----------------------//Array[0]----------------------");
     switch (moduleSwValue) {
 
       case 1:
       
-        if (moduleMeasuredData[0] < 9 || moduleMeasuredData[0] > 13){
+        if (moduleMeasuredData[0] < 15.0 || moduleMeasuredData[0] > 20.0){
         
           digitalWrite(socket1FailLed, 1);
           errorSwActive = 1;
@@ -240,13 +262,19 @@ void loop(){
     delay(100);
     
     //MeasureReader2 in process
-    moduleMeasuredData[1] = int(voltmeter(voltageMeasureReader2) * 100.0);
+    moduleMeasuredData[1] = (voltmeter(voltageMeasureReader2) + 0.04) * 100.0;
+    //DEBUG
+    Serial.println("-----------------------Reader2----------------------");
+    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println("-----------------------Array[1]----------------------");
+    Serial.println(moduleMeasuredData[1]);
+    Serial.println("-----------------------//Array[1]----------------------");
      
     switch (moduleSwValue) {
 
       case 1:
       
-        if (moduleMeasuredData[1] < 9 || moduleMeasuredData[1] > 13){
+        if (moduleMeasuredData[1] < 15.0 || moduleMeasuredData[1] > 20.0){
         
           digitalWrite(socket2FailLed, 1);
           errorSwActive = 1;
@@ -260,13 +288,18 @@ void loop(){
     delay(100);
     
     //MeasureReader3 in process
-    moduleMeasuredData[2] = int(voltmeter(voltageMeasureReader3) * 100.0);
-
+    moduleMeasuredData[2] = (voltmeter(voltageMeasureReader3) + 0.04) * 100.0;
+    //DEBUG
+    Serial.println("-----------------------Reader3----------------------");
+    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println("-----------------------Array[2]----------------------");
+    Serial.println(moduleMeasuredData[2]);
+    Serial.println("-----------------------//Array[2]----------------------");
     switch (moduleSwValue) {
 
       case 1:
       
-        if (moduleMeasuredData[2] < 9 || moduleMeasuredData[2] > 13){
+        if (moduleMeasuredData[2] < 15.0 || moduleMeasuredData[2] > 20.0){
         
           digitalWrite(socket3FailLed, 1);
           errorSwActive = 1;
@@ -280,13 +313,18 @@ void loop(){
     delay(100);
 
     //MeasureReader4 in process
-    moduleMeasuredData[3] = int(voltmeter(voltageMeasureReader4) * 100.0);
-
+    moduleMeasuredData[3] = (voltmeter(voltageMeasureReader4) + 0.04) * 100.0;
+    //DEBUG
+    Serial.println("-----------------------Reader4----------------------");
+    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println("-----------------------Array[3]----------------------");
+    Serial.println(moduleMeasuredData[3]);
+    Serial.println("-----------------------//Array[3]----------------------");
     switch (moduleSwValue) {
 
       case 1:
       
-        if (moduleMeasuredData[3] < 9 || moduleMeasuredData[3] > 13){
+        if (moduleMeasuredData[3] < 15.0 || moduleMeasuredData[3] > 20.0){
         
           digitalWrite(socket4FailLed, 1);
           errorSwActive = 1;

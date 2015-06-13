@@ -11,9 +11,9 @@
 #include <SoftwareSerial.h>
 
 // Constants
-const byte ID = 1;//Module ID
+const byte ID = 2;//Module ID
 
-#define socket1FailLed A7
+#define socket1FailLed A0
 #define socket2FailLed 2
 #define socket3FailLed 3
 #define socket4FailLed 4
@@ -62,14 +62,23 @@ SoftwareSerial RS485 (rxPin, txPin);
 
 //Setup 
 void setup(){
+
+  pinMode(moduleTubesSw0, OUTPUT);
+  pinMode(moduleTubesSw1, OUTPUT);
+  pinMode(moduleTubesSw2, OUTPUT);
+  pinMode(moduleTubesSw3, OUTPUT);
+  pinMode(moduleTubesSw4, OUTPUT);
+  pinMode(moduleTubesSw5, OUTPUT);
+  pinMode(socket1FailLed, OUTPUT);
+  pinMode(socket2FailLed, OUTPUT);
+  pinMode(socket3FailLed, OUTPUT);
+  pinMode(socket4FailLed, OUTPUT);
   
   digitalWrite(moduleTubesSw0, 1);
  
   RS485.begin(9600);
   
   ET.begin(details(measureData), &RS485);
-  
-  pinMode(socket4FailLed, OUTPUT);
   
   delay(1500);
   

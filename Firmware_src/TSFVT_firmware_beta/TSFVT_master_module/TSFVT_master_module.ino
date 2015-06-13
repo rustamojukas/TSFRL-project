@@ -40,10 +40,10 @@ struct RECEIVE_DATA_STRUCTURE{
   
   byte ID;
   byte moduleSw;
-  int measure1;
-  int measure2;
-  int measure3;
-  int measure4;
+  float measure1;
+  float measure2;
+  float measure3;
+  float measure4;
   byte errorSw;
 
 };
@@ -60,9 +60,9 @@ byte module1TubesSw[] = {0};
 byte module2TubesSw[] = {0};
 byte module3TubesSw[] = {0};
 
-int module1MeasuredData[] = {0, 0, 0, 0, 0, 0};
-int module2MeasuredData[] = {0, 0, 0, 0, 0, 0};
-int module3MeasuredData[] = {0, 0, 0, 0, 0, 0};
+float module1MeasuredData[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float module2MeasuredData[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float module3MeasuredData[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 byte modulesMenuPos = 0;
 byte moduleMenuPos = 0;
@@ -113,6 +113,9 @@ void setup() {
   pinMode(keyDown, INPUT);
   pinMode(keyBack, INPUT);
   pinMode(keySelect, INPUT);
+  pinMode(testLed, OUTPUT);
+  pinMode(doneLed, OUTPUT);
+  pinMode(errorLed, OUTPUT);
   
   //Initialize the lcd 
   lcd.init();
@@ -129,7 +132,7 @@ void setup() {
   digitalWrite(testLed, 1);
   digitalWrite(doneLed, 1);
   digitalWrite(errorLed, 1);
-  digitalWrite(DIR, 1);
+  //digitalWrite(DIR, 1);
   
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -142,7 +145,7 @@ void setup() {
   digitalWrite(testLed, 0);
   digitalWrite(doneLed, 0);
   digitalWrite(errorLed, 0);
-  digitalWrite(DIR, 0);
+  //digitalWrite(DIR, 0);
           
 }
 
@@ -325,7 +328,8 @@ void loop() {
   
       if (digitalRead(keyDown) && moduleMenuPos < (module1MenuArrSize - 1)) moduleMenuPos++;   
       else if (digitalRead(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
-    
+      
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
@@ -377,6 +381,7 @@ void loop() {
       if (digitalRead(keyDown) && moduleMenuPos < (module2MenuArrSize - 1)) moduleMenuPos++;   
       else if (digitalRead(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
       
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
@@ -428,6 +433,7 @@ void loop() {
       if (digitalRead(keyDown) && moduleMenuPos < (module3MenuArrSize - 1)) moduleMenuPos++;   
       else if (digitalRead(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
       
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
@@ -966,12 +972,12 @@ void loop() {
         
         delay(10);
           
-        module1MeasuredData[0] = measureData.moduleSw - 1;
+        module1MeasuredData[0] = float(measureData.moduleSw - 1);
         module1MeasuredData[1] = measureData.measure1;
         module1MeasuredData[2] = measureData.measure2;
         module1MeasuredData[3] = measureData.measure3;
         module1MeasuredData[4] = measureData.measure4;
-        module1MeasuredData[5] = measureData.errorSw;
+        module1MeasuredData[5] = float(measureData.errorSw);
         moduleCounter--;
         savedDataCounter--;
           
@@ -981,12 +987,12 @@ void loop() {
           
         delay(10);
         
-        module2MeasuredData[0] = measureData.moduleSw - 1;
+        module2MeasuredData[0] = float(measureData.moduleSw - 1);
         module2MeasuredData[1] = measureData.measure1;
         module2MeasuredData[2] = measureData.measure2;
         module2MeasuredData[3] = measureData.measure3;
         module2MeasuredData[4] = measureData.measure4;
-        module2MeasuredData[5] = measureData.errorSw;
+        module2MeasuredData[5] = float(measureData.errorSw);
         moduleCounter--;
         savedDataCounter--;
           
@@ -996,12 +1002,12 @@ void loop() {
         
         delay(10);
         
-        module3MeasuredData[0] = measureData.moduleSw - 1;
+        module3MeasuredData[0] = float(measureData.moduleSw - 1);
         module3MeasuredData[1] = measureData.measure1;
         module3MeasuredData[2] = measureData.measure2;
         module3MeasuredData[3] = measureData.measure3;
         module3MeasuredData[4] = measureData.measure4;
-        module3MeasuredData[5] = measureData.errorSw;
+        module3MeasuredData[5] = float(measureData.errorSw);
         moduleCounter--;
         savedDataCounter--;
           
@@ -1015,14 +1021,14 @@ void loop() {
   while(savedDataCounter == 1){
     
     //if check
-    if (module1MeasuredData[5] || module2MeasuredData[5] || module3MeasuredData[5]) digitalWrite(errorLed, 1);
+    if (byte(module1MeasuredData[5]) || byte(module2MeasuredData[5]) || byte(module3MeasuredData[5])) digitalWrite(errorLed, 1);
     
     //Show measured data from module 1
     if (module1ForTestOn == 1){
     
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print(module1TubesName[module1MeasuredData[0]]);
+      lcd.print(module1TubesName[byte(module1MeasuredData[0])]);
       lcd.setCursor(0, 1);
       lcd.print(module1MeasuredData[1]);
       lcd.print(" ");
@@ -1041,7 +1047,7 @@ void loop() {
         
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print(module2TubesName[module2MeasuredData[0]]);
+      lcd.print(module2TubesName[byte(module2MeasuredData[0])]);
       lcd.setCursor(0, 1);
       lcd.print(module2MeasuredData[1]);
       lcd.print(" ");
@@ -1060,7 +1066,7 @@ void loop() {
         
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print(module3TubesName[module3MeasuredData[0]]);
+      lcd.print(module3TubesName[byte(module3MeasuredData[0])]);
       lcd.setCursor(0, 1);
       lcd.print(module3MeasuredData[1]);
       lcd.print(" ");
