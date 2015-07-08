@@ -11,7 +11,7 @@
 #include <SoftwareSerial.h>
 
 // Constants
-const byte ID = 1;//Module ID
+const byte ID = 2;//Module ID
 
 #define socket1FailLed A0
 #define socket2FailLed 2
@@ -51,7 +51,7 @@ SEND_DATA_STRUCTURE measureData;
 float moduleMeasuredData[] = {0.0, 0.0, 0.0, 0.0};
 
 int second = 120;// 2 hours = 7200 seconds
-float correction = 4.1;
+float correction = 13.04;
 int sendDelay = ID * 1000;
 byte proceedTimer = 0;
 byte measureStart = 0;
@@ -65,7 +65,7 @@ void setup(){
   //DEBUG
   Serial.begin(9600);
   Serial.println("-----------------------Slave setup() Start----------------------");
-  
+  analogReference(INTERNAL);
   pinMode(moduleTubesSw0, OUTPUT);
   pinMode(moduleTubesSw1, OUTPUT);
   pinMode(moduleTubesSw2, OUTPUT);
@@ -76,6 +76,10 @@ void setup(){
   pinMode(socket2FailLed, OUTPUT);
   pinMode(socket3FailLed, OUTPUT);
   pinMode(socket4FailLed, OUTPUT);
+  pinMode(voltageMeasureReader1, INPUT);
+  pinMode(voltageMeasureReader2, INPUT);
+  pinMode(voltageMeasureReader3, INPUT);
+  pinMode(voltageMeasureReader4, INPUT);
   
   //digitalWrite(moduleTubesSw0, 1);
  
@@ -122,7 +126,7 @@ float voltmeter(int readPin){
   
   for (byte i = 0; i < 3; i++){
     
-    float volts = ((analogRead(readPin)-correction) * 5.0) / 1023.0;
+    float volts = ((analogRead(readPin) + correction) * 1.1) / 1023.0;
 
     result += volts;
     delay(100);
@@ -175,6 +179,8 @@ void loop(){
             //digitalWrite(moduleTubesSw1, 1);
             moduleSwValue = moduleSw;
             proceedTimer = 1;
+                //DEBUG
+                Serial.println("-----------------------Timer Start----------------------");
   
             break;
          
@@ -223,8 +229,6 @@ void loop(){
    
   //Timer start
   while(proceedTimer){
-    //DEBUG
-    Serial.println("-----------------------Timer Start----------------------");
     
     timer();
     
@@ -237,10 +241,11 @@ void loop(){
     Serial.println("-----------------------Measure Start----------------------");
     
     //MeasureReader1 in process
-    moduleMeasuredData[0] = (voltmeter(voltageMeasureReader1) + 0.04) * 100.0;
+    moduleMeasuredData[0] = (voltmeter(voltageMeasureReader1) * 100.0)  + 0.04;
     //DEBUG
     Serial.println("-----------------------Reader1----------------------");
-    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println(analogRead(voltageMeasureReader1));
+    Serial.println(voltmeter(voltageMeasureReader1));
     Serial.println("-----------------------Array[0]----------------------");
     Serial.println(moduleMeasuredData[0]);
     Serial.println("-----------------------//Array[0]----------------------");
@@ -248,7 +253,7 @@ void loop(){
 
       case 1:
       
-        if (moduleMeasuredData[0] < 15.0 || moduleMeasuredData[0] > 20.0){
+        if (moduleMeasuredData[0] < 6.16 || moduleMeasuredData[0] > 8.33){
         
           digitalWrite(socket1FailLed, 1);
           errorSwActive = 1;
@@ -262,10 +267,11 @@ void loop(){
     delay(100);
     
     //MeasureReader2 in process
-    moduleMeasuredData[1] = (voltmeter(voltageMeasureReader2) + 0.04) * 100.0;
+    moduleMeasuredData[1] = (voltmeter(voltageMeasureReader2) * 100.0)  + 0.04;
     //DEBUG
     Serial.println("-----------------------Reader2----------------------");
-    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println(analogRead(voltageMeasureReader2));
+    Serial.println(voltmeter(voltageMeasureReader1));
     Serial.println("-----------------------Array[1]----------------------");
     Serial.println(moduleMeasuredData[1]);
     Serial.println("-----------------------//Array[1]----------------------");
@@ -274,7 +280,7 @@ void loop(){
 
       case 1:
       
-        if (moduleMeasuredData[1] < 15.0 || moduleMeasuredData[1] > 20.0){
+        if (moduleMeasuredData[1] < 6.16 || moduleMeasuredData[1] > 8.33){
         
           digitalWrite(socket2FailLed, 1);
           errorSwActive = 1;
@@ -288,10 +294,11 @@ void loop(){
     delay(100);
     
     //MeasureReader3 in process
-    moduleMeasuredData[2] = (voltmeter(voltageMeasureReader3) + 0.04) * 100.0;
+    moduleMeasuredData[2] = (voltmeter(voltageMeasureReader3) * 100.0)  + 0.04;
     //DEBUG
     Serial.println("-----------------------Reader3----------------------");
-    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println(analogRead(voltageMeasureReader3));
+    Serial.println(voltmeter(voltageMeasureReader1));
     Serial.println("-----------------------Array[2]----------------------");
     Serial.println(moduleMeasuredData[2]);
     Serial.println("-----------------------//Array[2]----------------------");
@@ -299,7 +306,7 @@ void loop(){
 
       case 1:
       
-        if (moduleMeasuredData[2] < 15.0 || moduleMeasuredData[2] > 20.0){
+        if (moduleMeasuredData[2] < 6.16 || moduleMeasuredData[2] > 8.33){
         
           digitalWrite(socket3FailLed, 1);
           errorSwActive = 1;
@@ -313,10 +320,11 @@ void loop(){
     delay(100);
 
     //MeasureReader4 in process
-    moduleMeasuredData[3] = (voltmeter(voltageMeasureReader4) + 0.04) * 100.0;
+    moduleMeasuredData[3] = (voltmeter(voltageMeasureReader4) * 100.0) + 0.04;
     //DEBUG
     Serial.println("-----------------------Reader4----------------------");
-    Serial.println(voltmeter(voltageMeasureReader1) + 0.04);
+    Serial.println(analogRead(voltageMeasureReader4));
+    Serial.println(voltmeter(voltageMeasureReader1));
     Serial.println("-----------------------Array[3]----------------------");
     Serial.println(moduleMeasuredData[3]);
     Serial.println("-----------------------//Array[3]----------------------");
@@ -324,7 +332,7 @@ void loop(){
 
       case 1:
       
-        if (moduleMeasuredData[3] < 15.0 || moduleMeasuredData[3] > 20.0){
+        if (moduleMeasuredData[3] < 6.16 || moduleMeasuredData[3] > 8.33){
         
           digitalWrite(socket4FailLed, 1);
           errorSwActive = 1;

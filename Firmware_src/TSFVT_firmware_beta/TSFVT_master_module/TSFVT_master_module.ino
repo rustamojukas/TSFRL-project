@@ -970,8 +970,8 @@ void loop() {
       
       if (measureData.ID == 1){
         
-        delay(10);
-          
+        delay(10); 
+
         module1MeasuredData[0] = float(measureData.moduleSw - 1);
         module1MeasuredData[1] = measureData.measure1;
         module1MeasuredData[2] = measureData.measure2;
@@ -1031,53 +1031,17 @@ void loop() {
       lcd.print(module1TubesName[byte(module1MeasuredData[0])]);
       lcd.setCursor(0, 1);
       lcd.print(module1MeasuredData[1]);
-      lcd.print(" ");
-      lcd.print(module1MeasuredData[2]);    
+      lcd.print(" mA ");
+      lcd.print(module1MeasuredData[2]);
+      lcd.print(" mA");    
       delay(3000);
-      lcd.print("                ");
+      lcd.setCursor(0, 1);
       lcd.print(module1MeasuredData[3]);
-      lcd.print(" ");
+      lcd.print(" mA ");
       lcd.print(module1MeasuredData[4]);
+      lcd.print(" mA");
       delay(3000);
 
-    }
-    
-    //Show measured data from module 2
-    if (module2ForTestOn == 1){
-        
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print(module2TubesName[byte(module2MeasuredData[0])]);
-      lcd.setCursor(0, 1);
-      lcd.print(module2MeasuredData[1]);
-      lcd.print(" ");
-      lcd.print(module2MeasuredData[2]);    
-      delay(3000);
-      lcd.print("                ");
-      lcd.print(module2MeasuredData[3]);
-      lcd.print(" ");
-      lcd.print(module2MeasuredData[4]);
-      delay(3000);
-      
-    }
-    
-    //Show measured data from module 3
-    if (module3ForTestOn == 1){
-        
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print(module3TubesName[byte(module3MeasuredData[0])]);
-      lcd.setCursor(0, 1);
-      lcd.print(module3MeasuredData[1]);
-      lcd.print(" ");
-      lcd.print(module3MeasuredData[2]);    
-      delay(3000);
-      lcd.print("                ");
-      lcd.print(module3MeasuredData[3]);
-      lcd.print(" ");
-      lcd.print(module3MeasuredData[4]);
-      delay(3000);
-    
     }
   
     delay(200);
