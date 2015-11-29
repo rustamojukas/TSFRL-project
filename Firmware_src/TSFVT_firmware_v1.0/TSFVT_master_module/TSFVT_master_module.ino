@@ -1,9 +1,10 @@
 /*
-*  Name: TSFVT_master_module.ino
+*  File Name: TSFVT_master_module.ino
+*  Name: TSFVT_firmware_v1.0
 *  Description: Test Stand For Vacuum Tube project. Slave module source code.
 *  Required: SoftEasyTransfer library (https://github.com/madsci1016/Arduino-EasyTransfer).
 *  Author: Rustam Ojukas
-*  Date: 13.05.2015
+*  Date: 29.11.2015
 *  Github: https://github.com/rustamojukas/TSFVT-project
 */
 
@@ -14,6 +15,7 @@
 #include <LiquidCrystal_I2C.h>
 
 // Constants
+
 #define keyStart 3
 #define keyDown 4
 #define keyBack 5
@@ -24,7 +26,7 @@
 #define errorLed 10
 #define txPin 11
 #define rxPin 12
-#define DIR 13
+#define dir 13
 
 //Set Software serial pins
 SoftwareSerial RS485 (rxPin, txPin); // RX, TX
@@ -33,34 +35,35 @@ SoftwareSerial RS485 (rxPin, txPin); // RX, TX
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 //SoftEasyTransfer setup
-SoftEasyTransfer ET;
+SoftEasyTransfer softEasyTransfer;
 
 struct RECEIVE_DATA_STRUCTURE{
   
-  byte ID;
+  byte id;
   byte moduleSw;
-  int measure1;
-  int measure2;
-  int measure3;
-  int measure4;
+  float measure1;
+  float measure2;
+  float measure3;
+  float measure4;
+  byte errorSw;
 
 };
 
 RECEIVE_DATA_STRUCTURE measureData;
 
 const char* modulesMenu[] = {"Module 1", "Module 2", "Module 3"};
-const char* module1TubesName[] = {"M1 Lamp 1", "M1 Lamp 2", "M1 Lamp 3", "M1 Lamp 4", "M1 Lamp 5"};
-const char* module2TubesName[] = {"M2 Lamp 1", "M2 Lamp 2", "M2 Lamp 3", "M2 Lamp 4", "M2 Lamp 5"};
-const char* module3TubesName[] = {"M3 Lamp 1", "M3 Lamp 2", "M3 Lamp 3", "M3 Lamp 4", "M3 Lamp 5"};
+const char* module1TubesName[] = {"6AH6"};
+const char* module2TubesName[] = {"EL84"};
+const char* module3TubesName[] = {"6L6"};
 
 // Variables & arrays
-byte module1TubesSw[] = {0, 0, 0, 0, 0};
-byte module2TubesSw[] = {0, 0, 0, 0, 0};
-byte module3TubesSw[] = {0, 0, 0, 0, 0};
+byte module1TubesSw[] = {0};
+byte module2TubesSw[] = {0};
+byte module3TubesSw[] = {0};
 
-int module1MeasuredData[] = {0, 0, 0, 0, 0};
-int module2MeasuredData[] = {0, 0, 0, 0, 0};
-int module3MeasuredData[] = {0, 0, 0, 0, 0};
+float module1MeasuredData[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float module2MeasuredData[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+float module3MeasuredData[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 byte modulesMenuPos = 0;
 byte moduleMenuPos = 0;
@@ -103,9 +106,19 @@ void setup() {
 
   RS485.begin(9600);
   
-  ET.begin(details(measureData), &RS485);
+  softEasyTransfer.begin(details(measureData), &RS485);
   
-  // initialize the lcd 
+  //Setup keypins for input
+  pinMode(keyStart, INPUT);
+  pinMode(keyUp, INPUT);
+  pinMode(keyDown, INPUT);
+  pinMode(keyBack, INPUT);
+  pinMode(keySelect, INPUT);
+  pinMode(testLed, OUTPUT);
+  pinMode(doneLed, OUTPUT);
+  pinMode(errorLed, OUTPUT);
+  
+  //Initialize the lcd 
   lcd.init();
  
   // Print a message to the LCD.
@@ -114,20 +127,26 @@ void setup() {
   lcd.print("****************");
   lcd.setCursor (3, 1);
   lcd.print("it-group4you!");
-  delay(2000);
+  delay(1500);
+  
+  //Switch all LED for test
+  digitalWrite(testLed, 1);
+  digitalWrite(doneLed, 1);
+  digitalWrite(errorLed, 1);
+  digitalWrite(dir, 1);
+  
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Tester, started");
   lcd.setCursor(0, 1);
   lcd.print("Loading...");
-  delay(2000);
+  delay(2500);
   lcd.clear();  
 
-  pinMode(keyStart, INPUT);
-  pinMode(keyUp, INPUT);
-  pinMode(keyDown, INPUT);
-  pinMode(keyBack, INPUT);
-  pinMode(keySelect, INPUT);
+  digitalWrite(testLed, 0);
+  digitalWrite(doneLed, 0);
+  digitalWrite(errorLed, 0);
+  digitalWrite(dir, 0);
           
 }
 
@@ -172,10 +191,9 @@ void timer(){
 
 }
 
-boolean selectedModule(){
+byte selectedModule(){
 
   byte selectCounter = 0;
-  boolean selStatus = false;
   
     //Module 1
     for (byte i = 0; i < module1MenuArrSize; i ++){
@@ -216,8 +234,7 @@ boolean selectedModule(){
     }
     delay(10);
     
-    if (selectCounter > 0) selStatus = true;
-    return selStatus;
+    return selectCounter;
 
 }
 
@@ -253,12 +270,28 @@ void loop() {
     // keyStart actions
     if (digitalRead(keyStart)){
       
-      if (selectedModule()){
+      if (selectedModule() > 0){
+        
+        //Check how many modules is selected
+        if (selectedModule() == 1){
       
-        startKeyActive = 1;
+          startKeyActive = 1;
       
-        //Switch on testLed
-        digitalWrite(testLed, 1);
+          //Switch on testLed
+          digitalWrite(testLed, 1);
+          
+        }else{
+        
+          //Error message: Select more 1 module is not allowed
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Select > 1module");
+          lcd.setCursor(0, 1);
+          lcd.print("is NOT allowed");
+          delay(2000);
+          defaultDisplay = 1;          
+          
+        }
       
       }else{
       
@@ -296,7 +329,8 @@ void loop() {
   
       if (digitalRead(keyDown) && moduleMenuPos < (module1MenuArrSize - 1)) moduleMenuPos++;   
       else if (digitalRead(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
-    
+      
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
@@ -348,6 +382,7 @@ void loop() {
       if (digitalRead(keyDown) && moduleMenuPos < (module2MenuArrSize - 1)) moduleMenuPos++;   
       else if (digitalRead(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
       
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
@@ -399,6 +434,7 @@ void loop() {
       if (digitalRead(keyDown) && moduleMenuPos < (module3MenuArrSize - 1)) moduleMenuPos++;   
       else if (digitalRead(keyUp) && moduleMenuPos != 0) moduleMenuPos--;
       
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(modulesMenu[modulesMenuPos]);
       
@@ -504,7 +540,7 @@ void loop() {
     if (module1ForTestOn == 1 && module1DataSend == 0){
       
       //Switch rs485 transmit
-      digitalWrite(DIR, 1);
+      digitalWrite(dir, 1);
       
       //Module 1 list
       for (byte i = 0; i < module1MenuArrSize; i ++){
@@ -517,7 +553,7 @@ void loop() {
           RS485.write(i + 1);
           
           //Switch rs485 receive
-          digitalWrite(DIR, 0);
+          digitalWrite(dir, 0);
           module1DataSend = 1;
           receiveSumm++;
           
@@ -533,7 +569,7 @@ void loop() {
     if (module2ForTestOn == 1 && module2DataSend == 0){
       
       //Switch rs485 transmit
-      digitalWrite(DIR, 1);
+      digitalWrite(dir, 1);
       
       //Module 1 list
       for (byte i = 0; i < module2MenuArrSize; i ++){
@@ -546,7 +582,7 @@ void loop() {
           RS485.write(i + 1);
           
           //Switch rs485 receive
-          digitalWrite(DIR, 0);
+          digitalWrite(dir, 0);
           module2DataSend = 1;
           receiveSumm++;
           
@@ -562,7 +598,7 @@ void loop() {
     if (module3ForTestOn == 1 && module3DataSend == 0){
       
       //Switch rs485 transmit
-      digitalWrite(DIR, 1);
+      digitalWrite(dir, 1);
       
       //Module 1 list
       for (byte i = 0; i < module3MenuArrSize; i ++){
@@ -575,7 +611,7 @@ void loop() {
           RS485.write(i + 1);
           
           //Switch rs485 receive
-          digitalWrite(DIR, 0);
+          digitalWrite(dir, 0);
           module3DataSend = 1;
           receiveSumm++;
           
@@ -611,14 +647,14 @@ void loop() {
             delay(100);
             
             //Switch rs485 transmit
-            digitalWrite(DIR, 1);
+            digitalWrite(dir, 1);
           
             RS485.write(1);
             RS485.write(8);
             RS485.write(moduleSw);
             
             //Switch rs485 receive
-            digitalWrite(DIR, 0);
+            digitalWrite(dir, 0);
             receiveSumm--;
             startShowCounter--;
            
@@ -653,14 +689,14 @@ void loop() {
             delay(100);
             
             //Switch rs485 transmit
-            digitalWrite(DIR, 1);
+            digitalWrite(dir, 1);
           
             RS485.write(2);
             RS485.write(8);
             RS485.write(moduleSw);
             
             //Switch rs485 receive
-            digitalWrite(DIR, 0);
+            digitalWrite(dir, 0);
             receiveSumm--;
             startShowCounter--;
             
@@ -695,14 +731,14 @@ void loop() {
             delay(100);
             
             //Switch rs485 transmit
-            digitalWrite(DIR, 1);
+            digitalWrite(dir, 1);
           
             RS485.write(3);
             RS485.write(8);
             RS485.write(moduleSw);
             
             //Switch rs485 receive
-            digitalWrite(DIR, 0);
+            digitalWrite(dir, 0);
             receiveSumm--;
             startShowCounter--;
             
@@ -840,7 +876,7 @@ void loop() {
     if (module1ForTestOn == 1 && module1MeasureDataSend == 0){
       
       //Switch rs485 transmit
-      digitalWrite(DIR, 1);
+      digitalWrite(dir, 1);
       
       //Module 1 list
       for (byte i = 0; i < module1MenuArrSize; i ++){
@@ -853,7 +889,7 @@ void loop() {
           RS485.write(i + 1);
           
           //Switch rs485 receive
-          digitalWrite(DIR, 0);
+          digitalWrite(dir, 0);
           module1MeasureDataSend = 1;
           moduleCounter++;
           
@@ -869,7 +905,7 @@ void loop() {
     if (module2ForTestOn == 1 && module2MeasureDataSend == 0){
       
       //Switch rs485 transmit
-      digitalWrite(DIR, 1);
+      digitalWrite(dir, 1);
       
       //Module 1 list
       for (byte i = 0; i < module2MenuArrSize; i ++){
@@ -882,7 +918,7 @@ void loop() {
           RS485.write(i + 1);
           
           //Switch rs485 receive
-          digitalWrite(DIR, 0);
+          digitalWrite(dir, 0);
           module2MeasureDataSend = 1;
           moduleCounter++;
           
@@ -898,7 +934,7 @@ void loop() {
     if (module3ForTestOn == 1 && module3MeasureDataSend == 0){
       
       //Switch rs485 transmit
-      digitalWrite(DIR, 1);
+      digitalWrite(dir, 1);
       
       //Module 1 list
       for (byte i = 0; i < module3MenuArrSize; i ++){
@@ -911,7 +947,7 @@ void loop() {
           RS485.write(i + 1);
           
           //Switch rs485 receive
-          digitalWrite(DIR, 0);
+          digitalWrite(dir, 0);
           module3MeasureDataSend = 1;
           moduleCounter++;
           
@@ -931,45 +967,48 @@ void loop() {
   //Start get and save measured data
   while(moduleCounter >= 1){
   
-    if(ET.receiveData()){
+    if(softEasyTransfer.receiveData()){
       
-      if (measureData.ID == 1){
+      if (measureData.id == 1){
         
-        delay(10);
-          
-        module1MeasuredData[0] = measureData.moduleSw - 1;
+        delay(10); 
+
+        module1MeasuredData[0] = float(measureData.moduleSw - 1);
         module1MeasuredData[1] = measureData.measure1;
         module1MeasuredData[2] = measureData.measure2;
         module1MeasuredData[3] = measureData.measure3;
         module1MeasuredData[4] = measureData.measure4;
+        module1MeasuredData[5] = float(measureData.errorSw);
         moduleCounter--;
         savedDataCounter--;
           
       }
       
-      if (measureData.ID == 2){
+      if (measureData.id == 2){
           
         delay(10);
         
-        module2MeasuredData[0] = measureData.moduleSw - 1;
+        module2MeasuredData[0] = float(measureData.moduleSw - 1);
         module2MeasuredData[1] = measureData.measure1;
         module2MeasuredData[2] = measureData.measure2;
         module2MeasuredData[3] = measureData.measure3;
         module2MeasuredData[4] = measureData.measure4;
+        module2MeasuredData[5] = float(measureData.errorSw);
         moduleCounter--;
         savedDataCounter--;
           
       }
 
-      if (measureData.ID == 3){
+      if (measureData.id == 3){
         
         delay(10);
         
-        module3MeasuredData[0] = measureData.moduleSw - 1;
+        module3MeasuredData[0] = float(measureData.moduleSw - 1);
         module3MeasuredData[1] = measureData.measure1;
         module3MeasuredData[2] = measureData.measure2;
         module3MeasuredData[3] = measureData.measure3;
         module3MeasuredData[4] = measureData.measure4;
+        module3MeasuredData[5] = float(measureData.errorSw);
         moduleCounter--;
         savedDataCounter--;
           
@@ -982,64 +1021,28 @@ void loop() {
   
   while(savedDataCounter == 1){
     
+    //if check
+    if (byte(module1MeasuredData[5]) || byte(module2MeasuredData[5]) || byte(module3MeasuredData[5])) digitalWrite(errorLed, 1);
+    
     //Show measured data from module 1
     if (module1ForTestOn == 1){
     
-      //if check!!!
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print(module1TubesName[module1MeasuredData[0]]);
+      lcd.print(module1TubesName[byte(module1MeasuredData[0])]);
       lcd.setCursor(0, 1);
       lcd.print(module1MeasuredData[1]);
-      lcd.print(" ");
-      lcd.print(module1MeasuredData[2]);    
+      lcd.print(" mA ");
+      lcd.print(module1MeasuredData[2]);
+      lcd.print(" mA");    
       delay(3000);
-      lcd.print("                ");
+      lcd.setCursor(0, 1);
       lcd.print(module1MeasuredData[3]);
-      lcd.print(" ");
+      lcd.print(" mA ");
       lcd.print(module1MeasuredData[4]);
+      lcd.print(" mA");
       delay(3000);
 
-    }
-    
-    //Show measured data from module 2
-    if (module2ForTestOn == 1){
-      
-      //if check!!!  
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print(module2TubesName[module2MeasuredData[0]]);
-      lcd.setCursor(0, 1);
-      lcd.print(module2MeasuredData[1]);
-      lcd.print(" ");
-      lcd.print(module2MeasuredData[2]);    
-      delay(3000);
-      lcd.print("                ");
-      lcd.print(module2MeasuredData[3]);
-      lcd.print(" ");
-      lcd.print(module2MeasuredData[4]);
-      delay(3000);
-      
-    }
-    
-    //Show measured data from module 3
-    if (module3ForTestOn == 1){
-      
-      //if check!!!  
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print(module3TubesName[module3MeasuredData[0]]);
-      lcd.setCursor(0, 1);
-      lcd.print(module3MeasuredData[1]);
-      lcd.print(" ");
-      lcd.print(module3MeasuredData[2]);    
-      delay(3000);
-      lcd.print("                ");
-      lcd.print(module3MeasuredData[3]);
-      lcd.print(" ");
-      lcd.print(module3MeasuredData[4]);
-      delay(3000);
-    
     }
   
     delay(200);
